@@ -783,7 +783,7 @@ export const getCustomers: RequestHandler = async (req, res) => {
     const safeSort = validSortColumns.includes(sortBy as string) ? sortBy : 'created_at';
 
     const customers = await query(
-      `SELECT id, email, first_name, last_name, phone, city, country, total_spent, total_orders, created_at
+      `SELECT id, email, first_name, last_name, phone, state, city, country, total_spent, total_orders, created_at
        FROM customers WHERE tenant_id = ?
        ORDER BY ${safeSort} DESC
        LIMIT ${pageLimit} OFFSET ${offset}`,
@@ -1039,7 +1039,9 @@ export const updateCustomer: RequestHandler = async (req, res) => {
       last_name,
       email,
       phone,
+      state,
       city,
+      
       country,
     } = req.body;
 
@@ -1059,9 +1061,9 @@ export const updateCustomer: RequestHandler = async (req, res) => {
 
     await query(
       `UPDATE customers
-       SET first_name = ?, last_name = ?, email = ?, phone = ?, city = ?, country = ?
+       SET first_name = ?, last_name = ?, email = ?, phone = ?, state = ?, city = ?, country = ?
        WHERE id = ? AND tenant_id = ?`,
-      [first_name || null, last_name || null, email, phone || null, city || null, country || null, id, tenantId]
+      [first_name || null, last_name || null, email, phone || null, state || null, city || null, country || null, id, tenantId]
     );
 
     const updated = await query("SELECT * FROM customers WHERE id = ?", [id]);

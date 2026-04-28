@@ -2264,11 +2264,7 @@ const handlePlanLimitError = (error: any): string | null => {
                   <strong>Status</strong>
                   <p><span class="badge badge-${order.status}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></p>
                 </div>
-                <div class="info-block">
-                  <strong>Payment Status</strong>
-                  <p><span class="badge badge-${order.payment_status}">${(order.payment_status || 'pending').charAt(0).toUpperCase() + (order.payment_status || 'pending').slice(1)}</span></p>
-                </div>
-              </div>
+               
             </div>
 
             <div class="footer">
@@ -3496,7 +3492,10 @@ const handlePlanLimitError = (error: any): string | null => {
                           Amount
                         </th>
                         <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">
-                          Status
+                          Paymenyt status
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">
+                         Order Status
                         </th>
                         <th className="px-6 py-3 text-center text-sm font-semibold text-slate-900">
                           Actions
@@ -3525,6 +3524,29 @@ const handlePlanLimitError = (error: any): string | null => {
                           <td className="px-6 py-4 text-slate-900 font-medium">
                             ₹{order.total_amount?.toLocaleString()}
                           </td>
+                        <td className="px-6 py-4">
+  <select
+    value={order.payment_status || "pending"}
+    onChange={(e) =>
+      handleUpdatePaymentStatus(order.id, e.target.value)
+    }
+    className={`px-3 py-1 rounded-full text-sm font-medium border-0 cursor-pointer ${
+      (order.payment_status || "pending") === "pending"
+        ? "bg-yellow-100 text-yellow-800"
+        : (order.payment_status || "pending") === "processing"
+          ? "bg-blue-100 text-blue-800"
+          : (order.payment_status || "pending") === "completed"
+            ? "bg-emerald-100 text-emerald-800"
+            : "bg-red-100 text-red-800"
+    }`}
+  >
+    <option value="pending">Pending</option>
+    <option value="processing">Processing</option>
+    <option value="completed">Completed</option>
+    <option value="failed">Failed</option>
+  </select>
+</td>
+
                           <td className="px-6 py-4">
                             <select
                               value={order.status}
