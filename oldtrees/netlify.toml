@@ -3,11 +3,18 @@
   functions = "netlify/functions"
   publish = "dist/spa"
 
-
 [functions]
   external_node_modules = ["express"]
   node_bundler = "esbuild"
-  
+
+# ✅ HTTPS REDIRECT (ADD THIS)
+[[redirects]]
+  from = "http://www.sridhiyacrackers.com/*"
+  to = "https://www.sridhiyacrackers.com/:splat"
+  status = 301
+  force = true
+
+# Existing API redirect
 [[redirects]]
   force = true
   from = "/api/*"
