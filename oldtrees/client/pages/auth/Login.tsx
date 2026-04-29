@@ -21,7 +21,7 @@ export default function Login() {
       const response = await login(email, password);
       authLogin(response.token, response.user);
       toast.success("Login successful!");
-      navigate(`/client-admin/${response.user.tenantId}`);
+      navigate(`/client-admin/${response.user.tenantId}/DashboardPage`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Login failed");
     } finally {

@@ -3,7 +3,7 @@ import { Tag, Plus, Edit, Trash2, X, Search, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
+import Sidebar, { TabType } from "./sidebar";
 import {
   getClientCategories,
   createClientCategory,
@@ -188,6 +188,11 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
+const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [currentTab, setCurrentTab] = useState<TabType>("categories");
+
+
+
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -302,7 +307,21 @@ export default function CategoriesPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
+       <div className="flex">
+         <Sidebar
+                open={sidebarOpen}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
+                currentTab={currentTab}
+                onTabChange={(tab) => setCurrentTab(tab)}
+                onLogout={() => console.log("logout")}
+                domain="yourstore.com"
+                companyName="My Store"
+              />
+  <div
+        className={`flex-1 min-h-screen bg-slate-100 p-6 transition-all duration-300 ${
+          sidebarOpen ? "ml-64" : "ml-20"
+        }`}
+      >
       {/* Page Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -456,6 +475,7 @@ export default function CategoriesPage() {
         onClose={() => setDeleteTarget(null)}
         deleting={deleting}
       />
+    </div>
     </div>
   );
 }

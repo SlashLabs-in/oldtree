@@ -23,6 +23,10 @@ import {
 } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 
+import Sidebar, { TabType } from "./sidebar";
+
+
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Page {
@@ -317,6 +321,10 @@ export default function PagesPage() {
   const [deleteTarget, setDeleteTarget] = useState<Page | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+   const [sidebarOpen, setSidebarOpen] = useState(true);
+   const [currentTab, setCurrentTab] = useState<TabType>("pages");
+  
+
   // ── Fetch ──────────────────────────────────────────────────────────────────
 
   const fetchPages = useCallback(
@@ -449,7 +457,24 @@ export default function PagesPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
+    <div className="flex">
+         {/* Sidebar */}
+         <Sidebar
+           open={sidebarOpen}
+           onToggle={() => setSidebarOpen(!sidebarOpen)}
+           currentTab={currentTab}
+           onTabChange={(tab) => setCurrentTab(tab)}
+           onLogout={() => console.log("logout")}
+           domain="yourstore.com"
+           companyName="My Store"
+         />
+   
+         {/* Main Content */}
+         <div
+           className={`flex-1 min-h-screen bg-slate-100 p-6 transition-all duration-300 ${
+             sidebarOpen ? "ml-64" : "ml-20"
+           }`}
+         >
       {/* Page Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -644,6 +669,7 @@ export default function PagesPage() {
         onClose={() => setDeleteTarget(null)}
         deleting={deleting}
       />
+    </div>
     </div>
   );
 }

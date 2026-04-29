@@ -18,7 +18,7 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import SuperAdminLogin from "./pages/auth/SuperAdminLogin";
 import SuperAdminDashboard from "./pages/super-admin/Dashboard";
-import ClientAdminDashboard from "./pages/client-admin/Dashboard";
+// import ClientAdminDashboard from "./pages/client-admin/Dashboard";
 import StorefrontHome from "./pages/storefront/Home";
 import Checkout from "./pages/storefront/Checkout";
 import Blog from "./pages/storefront/Blog";
@@ -26,14 +26,22 @@ import BlogDetail from "./pages/storefront/BlogDetail";
 import PageDetail from "./pages/storefront/PageDetail";
 import CustomerPage from "./pages/client-admin/Customers";
 import DiscountCodes from "./pages/client-admin/Discounts"; 
-import Products from "./pages/client-admin/product";
+import Products from "./pages/client-admin/Product";
 
-import Orders from "./pages/client-admin/orders";
+import Orders from "./pages/client-admin/Orders";
 import Categories from "./pages/client-admin/Categories";
-import Pages from "./pages/client-admin/page";
-
+import Pages from "./pages/client-admin/Page";
+import Contact from "./pages/client-admin/Contact"
+import PaymentInfoPage from "./pages/client-admin/PaymentInfo";
+import Blogs from "./pages/client-admin/Blogs";
 // import AppearancePage from "./pages/client-admin/AppearancePage";
 
+import AppearancePage from "./pages/client-admin/AppearancePage"; 
+import EmailSettingsPage from "./pages/client-admin/EmailSetting";
+
+import SEOPage from "./pages/client-admin/seo";
+import SettingsPage from "./pages/client-admin/settings";
+import DashboardPage from "./pages/client-admin/Dashbords";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +126,85 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+
+
+ <Route
+        path="/client-admin/:tenantId/Blogs"
+        element={
+          <ProtectedRoute>
+            <Blogs />
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/client-admin/:tenantId/Contact"
+        element={
+          <ProtectedRoute>
+            <Contact />
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/client-admin/:tenantId/PaymentInfoPage"
+        element={
+          <ProtectedRoute>
+            <PaymentInfoPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client-admin/:tenantId/AppearancePage"
+        element={
+          <ProtectedRoute>
+            <AppearancePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/client-admin/:tenantId/EmailSettingsPage"
+        element={
+          <ProtectedRoute>
+            <EmailSettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/client-admin/:tenantId/PaymentInfoPage"
+        element={
+          <ProtectedRoute>
+            <PaymentInfoPage />
+          </ProtectedRoute>
+        }
+      />
+
+
+       <Route
+        path="/client-admin/:tenantId/SEOPage"
+        element={
+          <ProtectedRoute>
+            <SEOPage />
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/client-admin/:tenantId/SettingsPage"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/client-admin/:tenantId/DashboardPage"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
       {/* <Route
         path="/client-admin/:tenantId/appearance"
         element={
@@ -136,24 +223,24 @@ function AppRoutes() {
       />
 
       {/*  Dashboard main */}
-      <Route
+      {/* <Route
         path="/client-admin/:tenantId"
         element={
           <ProtectedRoute>
             <ClientAdminDashboard />
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       {/*  KEEP THIS LAST (catch all inside client-admin) */}
-      <Route
+      {/* <Route
         path="/client-admin/:tenantId/*"
         element={
           <ProtectedRoute>
             <ClientAdminDashboard />
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       {/* ================= STOREFRONT ================= */}
       <Route path="/store/:tenantId" element={<StorefrontHome />} />
