@@ -24,13 +24,22 @@ import Checkout from "./pages/storefront/Checkout";
 import Blog from "./pages/storefront/Blog";
 import BlogDetail from "./pages/storefront/BlogDetail";
 import PageDetail from "./pages/storefront/PageDetail";
+import CustomerPage from "./pages/client-admin/Customers";
+import DiscountCodes from "./pages/client-admin/Discounts"; 
+import Products from "./pages/client-admin/product";
+
+import Orders from "./pages/client-admin/orders";
+import Categories from "./pages/client-admin/Categories";
+import Pages from "./pages/client-admin/page";
+
+// import AppearancePage from "./pages/client-admin/AppearancePage";
+
 
 const queryClient = new QueryClient();
 
 function AppRoutes() {
   const { handleTokenError } = useAuth();
 
-  // Setup token error callback
   useEffect(() => {
     setTokenErrorCallback(() => {
       handleTokenError();
@@ -63,7 +72,70 @@ function AppRoutes() {
         }
       />
 
-      {/* Client Admin Routes */}
+      {/* ================= CLIENT ADMIN ROUTES ================= */}
+
+      {/*  Customer Details (VERY IMPORTANT - FIRST) */}
+     
+
+      {/*  Customer List */}
+      <Route
+        path="/client-admin/:tenantId/customers"
+        element={
+          <ProtectedRoute>
+            <CustomerPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/client-admin/:tenantId/discounts"
+        element={
+          <ProtectedRoute>
+            <DiscountCodes />
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/client-admin/:tenantId/products"
+        element={
+          <ProtectedRoute>
+            <Products />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/client-admin/:tenantId/orders"
+        element={
+          <ProtectedRoute>
+            <Orders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/client-admin/:tenantId/Categories"
+        element={
+          <ProtectedRoute>
+            <Categories />
+          </ProtectedRoute>
+        }
+      />
+      {/* <Route
+        path="/client-admin/:tenantId/appearance"
+        element={
+          <ProtectedRoute>
+            <AppearancePage />
+          </ProtectedRoute>
+        }
+      /> */}
+      <Route
+        path="/client-admin/:tenantId/Pages"
+        element={
+          <ProtectedRoute>
+            <Pages />
+          </ProtectedRoute>
+        }
+      />
+
+      {/*  Dashboard main */}
       <Route
         path="/client-admin/:tenantId"
         element={
@@ -72,6 +144,8 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/*  KEEP THIS LAST (catch all inside client-admin) */}
       <Route
         path="/client-admin/:tenantId/*"
         element={
@@ -81,7 +155,7 @@ function AppRoutes() {
         }
       />
 
-      {/* Storefront Routes */}
+      {/* ================= STOREFRONT ================= */}
       <Route path="/store/:tenantId" element={<StorefrontHome />} />
       <Route path="/store/:tenantId/checkout" element={<Checkout />} />
       <Route path="/store/:tenantId/blog" element={<Blog />} />
