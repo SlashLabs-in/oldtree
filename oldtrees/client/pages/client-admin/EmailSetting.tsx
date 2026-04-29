@@ -17,6 +17,12 @@ import { toast } from "sonner";
 import { getEmailSettings, updateEmailSettings } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 
+
+
+import Sidebar, { TabType } from "./sidebar";
+
+
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface EmailSettingsForm {
@@ -121,6 +127,10 @@ export default function EmailSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [currentTab, setCurrentTab] = useState<TabType>("email-settings");
+
+
   // ── Fetch ──────────────────────────────────────────────────────────────────
 
   const fetchSettings = useCallback(async () => {
@@ -193,7 +203,24 @@ export default function EmailSettingsPage() {
   const isConfigured = form.smtp_host && form.smtp_username && form.smtp_password && form.sender_email;
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
+   <div className="flex">
+         {/* Sidebar */}
+         <Sidebar
+           open={sidebarOpen}
+           onToggle={() => setSidebarOpen(!sidebarOpen)}
+           currentTab={currentTab}
+           onTabChange={(tab) => setCurrentTab(tab)}
+           onLogout={() => console.log("logout")}
+           domain="yourstore.com"
+           companyName="My Store"
+         />
+   
+         {/* Main Content */}
+         <div
+           className={`flex-1 min-h-screen bg-slate-100 p-6 transition-all duration-300 ${
+             sidebarOpen ? "ml-64" : "ml-20"
+           }`}
+         >
       {/* Page Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -435,6 +462,7 @@ export default function EmailSettingsPage() {
           </Button>
         </div>
       </form>
+    </div>
     </div>
   );
 }

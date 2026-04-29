@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import Sidebar, { TabType } from "./sidebar";
 
 import {
   getBusinessDetails,
@@ -240,6 +241,11 @@ export default function AppearancePage() {
   const [selectedBillingPlan, setSelectedBillingPlan] = useState("");
   const [upgradingBillingPlan, setUpgradingBillingPlan] = useState(false);
 
+
+
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [currentTab, setCurrentTab] = useState<TabType>("appearance");
+  
   // ── Load ───────────────────────────────────────────────────────────────────
 
   const loadAll = useCallback(async () => {
@@ -487,6 +493,25 @@ export default function AppearancePage() {
         onConfirm={updatePlanForTenant}
         submitting={upgradingBillingPlan}
       />
+ <Sidebar
+        open={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        currentTab={currentTab}
+        onTabChange={(tab) => setCurrentTab(tab)}
+        onLogout={() => console.log("logout")}
+        domain="yourstore.com"
+        companyName="My Store"
+      />
+
+      {/* Main Content */}
+      <div
+        className={`flex-1 min-h-screen bg-slate-100 p-6 transition-all duration-300 ${
+          sidebarOpen ? "ml-64" : "ml-20"
+        }`}
+      >
+
+
+
 
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -750,6 +775,7 @@ export default function AppearancePage() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

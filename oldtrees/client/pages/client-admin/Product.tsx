@@ -23,6 +23,8 @@ import {
   uploadProductImage,
 } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
+import Sidebar, { TabType } from "./sidebar";
+
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -433,6 +435,8 @@ export default function ProductPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+ const [sidebarOpen, setSidebarOpen] = useState(true);
+ const [currentTab, setCurrentTab] = useState<TabType>("products");
 
   // Product modal
   const [showModal, setShowModal] = useState(false);
@@ -447,6 +451,7 @@ export default function ProductPage() {
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
 
+  
   // Delete
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -626,6 +631,8 @@ export default function ProductPage() {
       const costIdx = headers.indexOf("cost price");
       const imgIdx = headers.indexOf("image url");
 
+
+
       let success = 0, fail = 0;
       for (let i = 2; i <= worksheet.rowCount; i++) {
         const row = worksheet.getRow(i);
@@ -712,7 +719,22 @@ export default function ProductPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
+   <div className="flex">
+        {/* Sidebar */}
+        <Sidebar
+          open={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          currentTab={currentTab}
+          onTabChange={(tab) => setCurrentTab(tab)}
+          onLogout={() => console.log("logout")}
+          domain="yourstore.com"
+          companyName="My Store"
+        />
+     <div
+        className={`flex-1 min-h-screen bg-slate-100 p-6 transition-all duration-300 ${
+          sidebarOpen ? "ml-64" : "ml-20"
+        }`}
+      >
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -991,6 +1013,7 @@ export default function ProductPage() {
         onClose={() => setDeleteTarget(null)}
         deleting={deleting}
       />
+    </div>
     </div>
   );
 }

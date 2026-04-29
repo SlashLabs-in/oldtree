@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import Sidebar, { TabType } from "./sidebar";
 
 import {
   getClientDiscounts,
@@ -304,6 +305,10 @@ export default function DiscountPage() {
   const [deleteTarget, setDeleteTarget] = useState<Discount | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [currentTab, setCurrentTab] = useState<TabType>("discounts");
+  
+
   // ── Fetch ──────────────────────────────────────────────────────────────────
 
   const fetchDiscounts = useCallback(async () => {
@@ -436,7 +441,24 @@ export default function DiscountPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
+      <div className="flex">
+          {/* Sidebar */}
+          <Sidebar
+            open={sidebarOpen}
+            onToggle={() => setSidebarOpen(!sidebarOpen)}
+            currentTab={currentTab}
+            onTabChange={(tab) => setCurrentTab(tab)}
+            onLogout={() => console.log("logout")}
+            domain="yourstore.com"
+            companyName="My Store"
+          />
+    
+          {/* Main Content */}
+          <div
+            className={`flex-1 min-h-screen bg-slate-100 p-6 transition-all duration-300 ${
+              sidebarOpen ? "ml-64" : "ml-20"
+            }`}
+          >
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -715,6 +737,7 @@ export default function DiscountPage() {
         onClose={() => setDeleteTarget(null)}
         deleting={deleting}
       />
+    </div>
     </div>
   );
 }
