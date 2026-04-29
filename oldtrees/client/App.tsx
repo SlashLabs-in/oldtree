@@ -18,7 +18,7 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import SuperAdminLogin from "./pages/auth/SuperAdminLogin";
 import SuperAdminDashboard from "./pages/super-admin/Dashboard";
-import ClientAdminDashboard from "./pages/client-admin/Dashboard";
+// import ClientAdminDashboard from "./pages/client-admin/Dashboard";
 import StorefrontHome from "./pages/storefront/Home";
 import Checkout from "./pages/storefront/Checkout";
 import Blog from "./pages/storefront/Blog";
@@ -223,24 +223,24 @@ function AppRoutes() {
       />
 
       {/*  Dashboard main */}
-      <Route
+      {/* <Route
         path="/client-admin/:tenantId"
         element={
           <ProtectedRoute>
             <ClientAdminDashboard />
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       {/*  KEEP THIS LAST (catch all inside client-admin) */}
-      <Route
+      {/* <Route
         path="/client-admin/:tenantId/*"
         element={
           <ProtectedRoute>
             <ClientAdminDashboard />
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       {/* ================= STOREFRONT ================= */}
       <Route path="/store/:tenantId" element={<StorefrontHome />} />
