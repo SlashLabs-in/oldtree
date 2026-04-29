@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Users, TrendingUp, Building2, CalendarDays } from "lucide-react";
 import { createPortal } from "react-dom";
 
 type BillingPlan = {
@@ -24,6 +24,25 @@ interface UpgradePlanModalProps {
   submitting?: boolean;
 }
 
+function PlanIcon({ name }: { name: string }) {
+  const n = name.toLowerCase();
+  const cls = "h-6 w-6 text-white";
+  if (n.includes("yearly")) return <CalendarDays className={cls} />;
+  if (n.includes("starter")) return <Users className={cls} />;
+  if (n.includes("professional") || n.includes("pro")) return <TrendingUp className={cls} />;
+  if (n.includes("enterprise")) return <Building2 className={cls} />;
+  return <TrendingUp className={cls} />;
+}
+
+function planGradient(name: string) {
+  const n = name.toLowerCase();
+  if (n.includes("yearly")) return "from-violet-500 to-violet-700";
+  if (n.includes("starter")) return "from-blue-500 to-indigo-600";
+  if (n.includes("professional") || n.includes("pro")) return "from-teal-400 to-cyan-600";
+  if (n.includes("enterprise")) return "from-orange-400 to-rose-500";
+  return "from-indigo-500 to-purple-600";
+}
+
 export default function UpgradePlanModal({
   open,
   message,
@@ -36,125 +55,105 @@ export default function UpgradePlanModal({
 }: UpgradePlanModalProps) {
   if (!open) return null;
 
-  const icons: Record<string, string> = {
-    Free: "🆓",
-    Basic: "📦",
-    Pro: "🚀",
-    Enterprise: "🏢",
-  };
-
   return createPortal(
-    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/40 backdrop-blur-md p-4">
-      
-      {/* Modal */}
-      <div className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-[32px] bg-white shadow-2xl animate-in zoom-in-95 duration-300">
-        
-        {/* Close Button */}
+    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
+
+        {/* Close */}
         <button
           onClick={onClose}
-          className="absolute right-5 top-5 h-10 w-10 flex items-center justify-center rounded-full bg-white border shadow hover:bg-slate-100"
+          className="absolute right-4 top-4 z-10 h-8 w-8 flex items-center justify-center rounded-full border bg-white shadow-sm hover:bg-slate-50"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4 text-slate-500" />
         </button>
 
-        <div className="p-8 md:p-12 space-y-10">
-          
+        <div className="p-6 space-y-5">
+
           {/* Header */}
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-600">
+          <div className="text-center pt-2">
+            <span className="inline-block text-[10px] font-semibold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
               Plan Upgrade
-            </p>
-            <h2 className="mt-4 text-4xl font-bold text-slate-900">
-              Upgrade your plan
+            </span>
+            <h2 className="mt-3 text-xl font-bold text-slate-900">
+              Choose the right plan for you
             </h2>
-            <p className="mt-4 text-slate-600 text-sm leading-6">
-              {message ||
-                "You’ve reached your limit. Upgrade your plan to unlock more features and continue growing."}
+            <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
+              {message || "You've reached your limit. Upgrade to unlock more features."}
             </p>
           </div>
 
-          {/* Plans */}
-          <div className="grid gap-6 md:grid-cols-3">
+          {/* Plans Grid */}
+          <div className="grid gap-3 sm:grid-cols-3">
             {plans.length === 0 ? (
-              <div className="col-span-full text-center p-10 text-slate-500">
+              <div className="col-span-full text-center py-10 text-slate-400 text-sm">
                 Loading plans...
               </div>
             ) : (
               plans.map((plan) => {
                 const isSelected = selectedPlan === plan.name;
-
                 return (
                   <button
                     key={plan.id}
                     onClick={() => onSelectPlan(plan.name)}
-                    className={`relative text-left rounded-3xl p-6 border transition-all duration-300 transform ${
+                    className={`relative text-left rounded-xl p-4 border-2 transition-all duration-200 ${
                       isSelected
-                        ? "border-indigo-500 bg-gradient-to-br from-indigo-50 to-white shadow-xl scale-[1.02]"
-                        : "border-slate-200 bg-white hover:-translate-y-2 hover:shadow-xl"
+                        ? "border-indigo-500 bg-indigo-50 shadow-md"
+                        : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-sm"
                     }`}
                   >
                     {/* Popular Badge */}
                     {plan.popular && (
-                      <span className="absolute top-4 right-4 bg-indigo-600 text-white text-xs px-3 py-1 rounded-full">
+                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-semibold px-3 py-0.5 rounded-full whitespace-nowrap">
                         Most Popular
                       </span>
                     )}
 
                     {/* Icon */}
-                    <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-2xl mb-5">
-                      {icons[plan.name] || "✨"}
+                    <div className={`h-11 w-11 rounded-xl bg-gradient-to-br ${planGradient(plan.name)} flex items-center justify-center mb-3 shadow-md`}>
+                      <PlanIcon name={plan.name} />
                     </div>
 
-                    {/* Title */}
-                    <h3 className="text-xl font-semibold text-slate-900">
-                      {plan.name}
-                    </h3>
+                    {/* Name */}
+                    <p className="text-sm font-semibold text-slate-800">{plan.name}</p>
 
                     {/* Description */}
-                    <p className="mt-2 text-sm text-slate-600 min-h-[40px]">
-                      {plan.description ||
-                        `Best for growing users who need more power.`}
+                    <p className="mt-0.5 text-[11px] text-slate-400 leading-4 min-h-[28px]">
+                      {plan.description || "Best for growing users."}
                     </p>
 
                     {/* Price */}
-                    <div className="mt-5">
-                      <p className="text-3xl font-bold text-slate-900">
+                    <div className="mt-3">
+                      <span className="text-xl font-bold text-slate-900">
                         {plan.price != null
-                          ? `${plan.currency || "₹"}${Number(
-                              plan.price
-                            ).toLocaleString()}`
+                          ? `${plan.currency || "₹"}${Number(plan.price).toLocaleString()}`
                           : "Free"}
-                        {plan.price != null && (
-                          <span className="text-sm text-slate-500 font-medium">
-                            {" "}
-                            / {plan.billing_period}
-                          </span>
-                        )}
-                      </p>
+                      </span>
+                      {plan.price != null && (
+                        <span className="text-[11px] text-slate-400 ml-1">
+                          / {plan.billing_period}
+                        </span>
+                      )}
                     </div>
 
                     {/* Features */}
-                    <ul className="mt-5 space-y-2 text-sm text-slate-600">
-                      {(plan.features || [
-                        "Unlimited usage",
-                        "Priority support",
-                        "Advanced analytics",
-                      ]).map((feature, i) => (
-                        <li key={i}>✔ {feature}</li>
-                      ))}
+                    <ul className="mt-3 space-y-1.5">
+                      {(plan.features || ["Unlimited usage", "Priority support", "Analytics"]).map(
+                        (f, i) => (
+                          <li key={i} className="flex items-start gap-1.5 text-[11px] text-slate-600">
+                            <span className="mt-0.5 h-3.5 w-3.5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[9px] font-bold flex-shrink-0">✓</span>
+                            {f}
+                          </li>
+                        )
+                      )}
                     </ul>
 
-                    {/* Select Button */}
-                    <div className="mt-6">
-                      <span
-                        className={`block text-center py-2 rounded-xl text-sm font-semibold ${
-                          isSelected
-                            ? "bg-indigo-600 text-white"
-                            : "bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        {isSelected ? "Selected" : "Select Plan"}
-                      </span>
+                    {/* Select */}
+                    <div className={`mt-4 text-center text-[11px] font-semibold py-1.5 rounded-lg transition-colors ${
+                      isSelected
+                        ? "bg-indigo-600 text-white"
+                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                    }`}>
+                      {isSelected ? "✓ Selected" : "Select Plan"}
                     </div>
                   </button>
                 );
@@ -163,29 +162,19 @@ export default function UpgradePlanModal({
           </div>
 
           {/* Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-6">
-            <p className="text-sm text-slate-500">
-              Choose a plan to continue.
-            </p>
-
-            <div className="flex gap-3 w-full sm:w-auto">
+          <div className="flex items-center justify-between border-t pt-4">
+            <p className="text-xs text-slate-400">Secure payment. Cancel anytime.</p>
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="w-full sm:w-auto"
+                className="h-8 text-xs px-4"
               >
                 Cancel
               </Button>
-
-              {/* <Button
-                onClick={onConfirm}
-                disabled={!selectedPlan || submitting}
-                className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                {submitting ? "Updating..." : "Upgrade Now 🚀"}
-              </Button> */}
             </div>
           </div>
+
         </div>
       </div>
     </div>,
