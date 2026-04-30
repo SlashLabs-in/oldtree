@@ -25,6 +25,8 @@ import {
 } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 
+import AppTable, { Column } from "@/components/client_Ui/table";
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface Discount {
@@ -500,6 +502,82 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
     (d) => d.discount_type === "percentage"
   ).length;
 
+
+const columns: Column<Discount>[] = [
+  {
+    header: "Code",
+    render: (d) => (
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <Tag className="w-4 h-4 text-primary" />
+        </div>
+        <span className="font-bold font-mono text-sm">{d.code}</span>
+      </div>
+    ),
+  },
+  {
+    header: "Description",
+    render: (d) => d.description || <span className="text-slate-300">—</span>,
+  },
+  {
+    header: "Value",
+    render: (d) => (
+      <span className="px-2 py-1 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700">
+        {d.discount_type === "percentage"
+          ? `${d.discount_value}%`
+          : `₹${d.discount_value}`}
+      </span>
+    ),
+  },
+  {
+    header: "Min Order",
+    render: (d) =>
+      d.min_order_amount
+        ? `₹${d.min_order_amount}`
+        : <span className="text-slate-300">—</span>,
+  },
+  {
+    header: "Usage",
+    render: (d) => (
+      <>
+        <span className="font-semibold">{d.used_count || 0}</span>
+        <span className="text-slate-400"> / {d.max_uses ?? "∞"}</span>
+      </>
+    ),
+  },
+  {
+    header: "Status",
+    render: (d) => {
+      const now = new Date();
+      const expired =
+        d.valid_until && new Date(d.valid_until) < now;
+
+      if (expired) {
+        return <span className="text-red-500 text-xs">Expired</span>;
+      }
+
+      return d.is_active ? (
+        <span className="text-green-600 text-xs">Active</span>
+      ) : (
+        <span className="text-gray-500 text-xs">Inactive</span>
+      );
+    },
+  },
+  {
+    header: "Actions",
+    render: (d) => (
+      <div className="flex gap-2">
+        <button onClick={() => openEdit(d)}>
+          <Edit className="w-4 h-4 text-blue-600" />
+        </button>
+        <button onClick={() => setDeleteTarget(d)}>
+          <Trash2 className="w-4 h-4 text-red-500" />
+        </button>
+      </div>
+    ),
+  },
+];
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -574,26 +652,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: "Total Codes", value: discounts.length },
-          { label: "Active", value: activeCount },
-          { label: "Total Uses", value: totalUses },
-          { label: "% Type", value: percentageCount },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm"
-          >
-            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-              {s.label}
-            </p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">{s.value}</p>
-          </div>
-        ))}
-      </div>
-
+     
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {loading ? (
@@ -603,161 +662,24 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
           </div>
         ) : filtered.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  {[
-                    "Code",
-                    "Description",
-                    "Value",
-                    "Min Order",
-                    "Usage",
-                    "Validity",
-                    "Status",
-                    "Actions",
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((discount) => {
-                  const now = new Date();
-                  const expired =
-                    discount.valid_until &&
-                    new Date(discount.valid_until) < now;
-                  const notStarted =
-                    discount.valid_from &&
-                    new Date(discount.valid_from) > now;
+          <AppTable
+  data={filtered}
+  columns={columns}
+  loading={loading}
 
-                  return (
-                    <tr
-                      key={discount.id}
-                      className="hover:bg-slate-50 transition-colors group"
-                    >
-                      {/* Code */}
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <Tag className="w-4 h-4 text-primary" />
-                          </div>
-                          <span className="font-bold text-slate-900 font-mono text-sm tracking-wide">
-                            {discount.code}
-                          </span>
-                        </div>
-                      </td>
+  searchQuery={searchQuery}
+  onSearchChange={setSearchQuery}
+  searchPlaceholder="Search discount..."
 
-                      {/* Description */}
-                      <td className="px-5 py-4 text-sm text-slate-500 max-w-[180px]">
-                        <span className="line-clamp-1">
-                          {discount.description || (
-                            <span className="text-slate-300">—</span>
-                          )}
-                        </span>
-                      </td>
+  emptyMessage={
+    searchQuery
+      ? "No discounts match your search"
+      : "No discount codes yet"
+  }
 
-                      {/* Value */}
-                      <td className="px-5 py-4">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700">
-                          {discount.discount_type === "percentage"
-                            ? `${discount.discount_value}%`
-                            : `₹${discount.discount_value}`}
-                        </span>
-                      </td>
-
-                      {/* Min Order */}
-                      <td className="px-5 py-4 text-sm text-slate-600">
-                        {discount.min_order_amount
-                          ? `₹${discount.min_order_amount.toLocaleString()}`
-                          : <span className="text-slate-300">—</span>}
-                      </td>
-
-                      {/* Usage */}
-                      <td className="px-5 py-4 text-sm text-slate-600">
-                        <span className="font-semibold">
-                          {discount.used_count || 0}
-                        </span>
-                        <span className="text-slate-400">
-                          {" "}/ {discount.max_uses ?? "∞"}
-                        </span>
-                      </td>
-
-                      {/* Validity */}
-                      <td className="px-5 py-4 text-xs text-slate-500">
-                        {discount.valid_from || discount.valid_until ? (
-                          <div className="space-y-0.5">
-                            {discount.valid_from && (
-                              <p>
-                                From:{" "}
-                                {new Date(discount.valid_from).toLocaleDateString()}
-                              </p>
-                            )}
-                            {discount.valid_until && (
-                              <p>
-                                Until:{" "}
-                                {new Date(
-                                  discount.valid_until
-                                ).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-slate-300">No limit</span>
-                        )}
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-5 py-4">
-                        {expired ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-600">
-                            <XCircle className="w-3 h-3" />
-                            Expired
-                          </span>
-                        ) : notStarted ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700">
-                            Scheduled
-                          </span>
-                        ) : discount.is_active ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
-                            <CheckCircle className="w-3 h-3" />
-                            Active
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
-                            Inactive
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => openEdit(discount)}
-                            className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                            title="Edit"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget(discount)}
-                            className="p-2 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+  onAddFirst={!searchQuery ? openAdd : undefined}
+  addLabel="Create First Discount"
+/>
           </div>
         ) : (
           <div className="py-20 text-center">

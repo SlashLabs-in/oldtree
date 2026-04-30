@@ -12,6 +12,9 @@ import {
 } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 import { getBusinessDetails, getSuperAdminPricing } from "@/lib/api";
+
+import AppTable, { Column } from "@/components/client_Ui/table";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Category {
@@ -363,6 +366,48 @@ useEffect(() => {
     );
   });
 
+
+
+  const columns: Column<Category>[] = [
+  {
+    header: "Name",
+    render: (c) => (
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 bg-primary/10 flex items-center justify-center rounded-lg">
+          <Tag className="w-4 h-4 text-primary" />
+        </div>
+        <span className="font-semibold">{c.name}</span>
+      </div>
+    ),
+  },
+  {
+    header: "Slug",
+    render: (c) => (
+      <code className="bg-slate-100 px-2 py-1 rounded text-xs">
+        {c.slug}
+      </code>
+    ),
+  },
+  {
+    header: "Description",
+    render: (c) => c.description || "—",
+  },
+  {
+    header: "Actions",
+    render: (c) => (
+      <div className="flex gap-2">
+        <button onClick={() => openEditModal(c)}>
+          <Edit className="w-4 h-4 text-blue-600" />
+        </button>
+        <button onClick={() => setDeleteTarget(c)}>
+          <Trash2 className="w-4 h-4 text-red-500" />
+        </button>
+      </div>
+    ),
+  },
+];
+
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -439,64 +484,19 @@ useEffect(() => {
           </div>
         ) : filtered.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  {["Name", "Slug", "Description", "Actions"].map((h) => (
-                    <th
-                      key={h}
-                      className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((category) => (
-                  <tr key={category.id} className="hover:bg-slate-50 transition-colors group">
-                    {/* Name + Icon */}
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Tag className="w-4 h-4 text-primary" />
-                        </div>
-                        <p className="font-semibold text-slate-900 text-sm">{category.name}</p>
-                      </div>
-                    </td>
+          <AppTable
+  data={filtered}
+  columns={columns}
+  loading={loading}
 
-                    <td className="px-5 py-4">
-                      <code className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">
-                        {category.slug}
-                      </code>
-                    </td>
+  searchQuery={searchQuery}
+  onSearchChange={setSearchQuery}
+  searchPlaceholder="Search categories..."
 
-                    <td className="px-5 py-4 text-sm text-slate-600 max-w-xs truncate">
-                      {category.description || <span className="text-slate-300">—</span>}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => openEditModal(category)}
-                          className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                          title="Edit category"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteTarget(category)}
-                          className="p-2 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
-                          title="Delete category"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+  emptyMessage="No categories found"
+  onAddFirst={openAddModal}
+  addLabel="Add Category"
+/>
           </div>
         ) : (
           <div className="py-20 text-center">

@@ -1,16 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  Package,
-  Plus,
-  Edit,
-  Trash2,
-  X,
-  Search,
-  RefreshCw,
-  Upload,
-  Download,
-  
-} from "lucide-react";
+import { Plus, RefreshCw, Upload, X, Search,Trash2, Download,  Edit   } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -22,25 +11,14 @@ import {
   updateClientProduct,
   deleteClientProduct,
   uploadProductImage,
-  getBusinessDetails, getSuperAdminPricing 
+  getBusinessDetails,
+  getSuperAdminPricing,
 } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
-import Sidebar, { TabType } from "./sidebar";
-
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  sku?: string;
-  price: number;
-  cost_price?: number;
-  category?: string;
-  stock_quantity?: number;
-  image_url?: string;
-}
+import Sidebar from "./sidebar";
+// import ProductTable, { Product } from ".../components/client_Ui/table";
+import AppTable, { Column } from "@/components/client_Ui/table";
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ProductForm {
   name: string;
@@ -52,6 +30,19 @@ interface ProductForm {
   stockQuantity: string;
   imageUrl: string;
   imageFile: File | null;
+}
+
+
+interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  sku?: string;
+  price: number;
+  cost_price?: number;
+  category?: string;
+  stock_quantity?: number;
+  image_url?: string;
 }
 
 const EMPTY_PRODUCT_FORM: ProductForm = {
@@ -100,7 +91,6 @@ function ProductModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-        {/* Header */}
         <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-slate-200 z-10">
           <h2 className="text-xl font-bold text-slate-900">
             {editingId ? "Edit Product" : "Add New Product"}
@@ -113,7 +103,6 @@ function ProductModal({
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={onSubmit} className="p-6 space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
@@ -128,9 +117,7 @@ function ProductModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                SKU
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">SKU</label>
               <Input
                 placeholder="Leave empty to auto-generate"
                 value={form.sku}
@@ -189,9 +176,7 @@ function ProductModal({
                 type="number"
                 placeholder="0"
                 value={form.stockQuantity}
-                onChange={(e) =>
-                  onChange({ ...form, stockQuantity: e.target.value })
-                }
+                onChange={(e) => onChange({ ...form, stockQuantity: e.target.value })}
               />
             </div>
           </div>
@@ -259,18 +244,9 @@ function ProductModal({
 
           <div className="flex gap-3 pt-2">
             <Button type="submit" className="flex-1" disabled={saving}>
-              {saving
-                ? "Saving..."
-                : editingId
-                ? "Update Product"
-                : "Create Product"}
+              {saving ? "Saving..." : editingId ? "Update Product" : "Create Product"}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-            >
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
           </div>
@@ -318,12 +294,10 @@ function BulkUploadModal({
         <form onSubmit={onSubmit} className="p-6 space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <p className="text-sm font-medium text-slate-700 mb-1">
-                Upload Excel File
-              </p>
+              <p className="text-sm font-medium text-slate-700 mb-1">Upload Excel File</p>
               <p className="text-xs text-slate-500">
-                Columns: Name, SKU, Price, Category, Stock Quantity, Description,
-                Cost Price, Image URL
+                Columns: Name, SKU, Price, Category, Stock Quantity, Description, Cost
+                Price, Image URL
               </p>
             </div>
             <Button
@@ -346,16 +320,10 @@ function BulkUploadModal({
             disabled={loading}
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm disabled:opacity-50"
           />
-          {file && (
-            <p className="text-xs text-slate-500">Selected: {file.name}</p>
-          )}
+          {file && <p className="text-xs text-slate-500">Selected: {file.name}</p>}
 
           <div className="flex gap-3 pt-2">
-            <Button
-              type="submit"
-              className="flex-1"
-              disabled={!file || loading}
-            >
+            <Button type="submit" className="flex-1" disabled={!file || loading}>
               {loading ? "Uploading..." : "Upload Products"}
             </Button>
             <Button
@@ -384,13 +352,7 @@ interface DeleteModalProps {
   deleting: boolean;
 }
 
-function DeleteModal({
-  open,
-  productName,
-  onConfirm,
-  onClose,
-  deleting,
-}: DeleteModalProps) {
+function DeleteModal({ open, productName, onConfirm, onClose, deleting }: DeleteModalProps) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -405,8 +367,7 @@ function DeleteModal({
           </div>
         </div>
         <p className="text-sm text-slate-600 mb-6">
-          Are you sure you want to delete{" "}
-          <strong>"{productName}"</strong>?
+          Are you sure you want to delete <strong>"{productName}"</strong>?
         </p>
         <div className="flex gap-3">
           <Button
@@ -425,22 +386,25 @@ function DeleteModal({
     </div>
   );
 }
-// ─── Profile Plan Tooltip Button ──────────────────────────────────────────────
 
-// function ProfilePlanButton({ pricing }: { pricing: any[] }) {
-//   const [show, setShow] = useState(false);
+// ─── Profile Plan Button ──────────────────────────────────────────────────────
 
-//   // Get the first/current plan name from pricing data
-//   const currentPlan = pricing?.[0]?.name || "No Plan";
-function ProfilePlanButton({ pricing, businessDetails }: { pricing: any[]; businessDetails: any }) {
+function ProfilePlanButton({
+  pricing,
+  businessDetails,
+}: {
+  pricing: any[];
+  businessDetails: any;
+}) {
   const [show, setShow] = useState(false);
 
-  // Match client's billing_plan key against pricing list
-  const billingPlanKey = businessDetails?.billing_plan || businessDetails?.billingPlan || "";
+  const billingPlanKey =
+    businessDetails?.billing_plan || businessDetails?.billingPlan || "";
   const matchedPlan = pricing.find(
     (p) => p.name?.toLowerCase() === billingPlanKey?.toLowerCase()
   );
   const currentPlan = matchedPlan?.name || billingPlanKey || "No Plan";
+
   return (
     <div className="relative">
       <button
@@ -450,7 +414,6 @@ function ProfilePlanButton({ pricing, businessDetails }: { pricing: any[]; busin
       >
         M
       </button>
-
       {show && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShow(false)} />
@@ -477,18 +440,22 @@ function ProfilePlanButton({ pricing, businessDetails }: { pricing: any[]; busin
 // ─── Main ProductPage ─────────────────────────────────────────────────────────
 
 export default function ProductPage() {
-  const [pricing, setPricing] = useState<any[]>([]);
-const [businessDetails, setBusinessDetails] = useState<any>(null);
   const { tenantId } = useTenant();
 
+  // Data
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [pricing, setPricing] = useState<any[]>([]);
+  const [businessDetails, setBusinessDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Pagination & search
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
- const [sidebarOpen, setSidebarOpen] = useState(true);
- const [currentTab, setCurrentTab] = useState<TabType>("products");
+
+  // Sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Product modal
   const [showModal, setShowModal] = useState(false);
@@ -503,12 +470,11 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
 
-  
   // Delete
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // ── Fetch ──────────────────────────────────────────────────────────────────
+  // ── Fetch ────────────────────────────────────────────────────────────────
 
   const fetchProducts = useCallback(
     async (p = 1) => {
@@ -521,7 +487,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
         setProducts(prodsData.data || []);
         setTotalPages(prodsData.pagination?.pages || 1);
         setCategories(catsData.data || []);
-      } catch (err) {
+      } catch {
         toast.error("Failed to load products");
         setProducts([]);
       } finally {
@@ -531,21 +497,17 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
     [tenantId]
   );
 
-  // useEffect(() => {
-  //   fetchProducts(page);
-  // }, [fetchProducts, page]);
-useEffect(() => {
-  fetchProducts();
+  useEffect(() => {
+    fetchProducts();
+    getBusinessDetails(tenantId || undefined)
+      .then((d) => setBusinessDetails(d.data))
+      .catch(() => {});
+    getSuperAdminPricing()
+      .then((d) => setPricing(d.data || []))
+      .catch(() => {});
+  }, [fetchProducts, tenantId]);
 
-  getBusinessDetails(tenantId || undefined)
-    .then((d) => setBusinessDetails(d.data))
-    .catch(() => {});
-
-  getSuperAdminPricing()
-    .then((d) => setPricing(d.data || []))
-    .catch(() => {});
-}, [fetchProducts, tenantId]);
-  // ── Image upload ───────────────────────────────────────────────────────────
+  // ── Image upload ─────────────────────────────────────────────────────────
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -556,11 +518,7 @@ useEffect(() => {
       reader.onload = (ev) => setImagePreview(ev.target?.result as string);
       reader.readAsDataURL(file);
       const result = await uploadProductImage(file);
-      setForm((prev) => ({
-        ...prev,
-        imageUrl: result.data.imageUrl,
-        imageFile: file,
-      }));
+      setForm((prev) => ({ ...prev, imageUrl: result.data.imageUrl, imageFile: file }));
       toast.success("Image uploaded");
     } catch {
       toast.error("Failed to upload image");
@@ -570,7 +528,7 @@ useEffect(() => {
     }
   };
 
-  // ── Save ───────────────────────────────────────────────────────────────────
+  // ── Save ─────────────────────────────────────────────────────────────────
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -602,14 +560,13 @@ useEffect(() => {
       closeModal();
       await fetchProducts(page);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to save product";
-      toast.error(msg);
+      toast.error(err instanceof Error ? err.message : "Failed to save product");
     } finally {
       setSaving(false);
     }
   };
 
-  // ── Delete ─────────────────────────────────────────────────────────────────
+  // ── Delete ───────────────────────────────────────────────────────────────
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -626,7 +583,7 @@ useEffect(() => {
     }
   };
 
-  // ── Bulk upload ────────────────────────────────────────────────────────────
+  // ── Bulk upload ──────────────────────────────────────────────────────────
 
   const handleDownloadTemplate = async () => {
     try {
@@ -634,8 +591,8 @@ useEffect(() => {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Products");
       const headers = [
-        "Name","SKU","Price","Category","Stock Quantity",
-        "Description","Cost Price","Image URL",
+        "Name", "SKU", "Price", "Category", "Stock Quantity",
+        "Description", "Cost Price", "Image URL",
       ];
       worksheet.addRow(headers);
       const headerRow = worksheet.getRow(1);
@@ -646,8 +603,8 @@ useEffect(() => {
         fgColor: { argb: "FF366092" },
       };
       worksheet.columns = [
-        { width: 25 },{ width: 15 },{ width: 12 },{ width: 15 },
-        { width: 15 },{ width: 30 },{ width: 12 },{ width: 25 },
+        { width: 25 }, { width: 15 }, { width: 12 }, { width: 15 },
+        { width: 15 }, { width: 30 }, { width: 12 }, { width: 25 },
       ];
       for (let i = 0; i < 3; i++) worksheet.addRow(Array(headers.length).fill(""));
       const buffer = await workbook.xlsx.writeBuffer();
@@ -693,8 +650,6 @@ useEffect(() => {
       const costIdx = headers.indexOf("cost price");
       const imgIdx = headers.indexOf("image url");
 
-
-
       let success = 0, fail = 0;
       for (let i = 2; i <= worksheet.rowCount; i++) {
         const row = worksheet.getRow(i);
@@ -733,7 +688,7 @@ useEffect(() => {
     }
   };
 
-  // ── Modal helpers ──────────────────────────────────────────────────────────
+  // ── Modal helpers ────────────────────────────────────────────────────────
 
   const openAdd = () => {
     setEditingId(null);
@@ -766,81 +721,114 @@ useEffect(() => {
     setImagePreview(null);
   };
 
-  // ── Filter ─────────────────────────────────────────────────────────────────
 
-  const filtered = products.filter((p) => {
-    const q = searchQuery.toLowerCase();
-    if (!q) return true;
-    return (
-      p.name.toLowerCase().includes(q) ||
-      (p.sku || "").toLowerCase().includes(q) ||
-      (p.category || "").toLowerCase().includes(q)
-    );
-  });
+  const productColumns = [
+  {
+    header: "Image",
+    render: (p: Product) =>
+      p.image_url ? (
+        <img
+          src={p.image_url}
+          className="w-12 h-12 rounded-lg object-cover"
+        />
+      ) : (
+        <div className="w-12 h-12 bg-slate-100 flex items-center justify-center rounded-lg">
+          No Img
+        </div>
+      ),
+  },
+  {
+    header: "Name",
+    render: (p: Product) => (
+      <div>
+        <p className="font-semibold">{p.name}</p>
+        <p className="text-xs text-slate-400">{p.description}</p>
+      </div>
+    ),
+  },
+  {
+    header: "Price",
+    render: (p: Product) => `₹${p.price}`,
+  },
+  {
+    header: "Stock",
+    render: (p: Product) => p.stock_quantity ?? 0,
+  },
+ {
+  header: "Actions",
+  render: (p: Product) => (
+    <div className="flex items-center gap-1">
+      <button
+        onClick={() => openEdit(p)}
+        className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition"
+        title="Edit"
+      >
+        <Edit className="w-4 h-4" />
+      </button>
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+      <button
+        onClick={() => setDeleteTarget(p)}
+        className="p-2 rounded-lg hover:bg-red-50 text-red-500 transition"
+        title="Delete"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  ),
+}
+];
+
+  // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-   <div className="flex">
-        {/* Sidebar */}
-        {/* <Sidebar
-          open={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-          currentTab={currentTab}
-          onTabChange={(tab) => setCurrentTab(tab)}
-          onLogout={() => console.log("logout")}
-          domain="yourstore.com"
-          companyName="My Store"
-        /> */}
-           <Sidebar
-          open={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-          onLogout={() => console.log("logout")}
-        />
-     <div
+    <div className="flex">
+      <Sidebar
+        open={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onLogout={() => console.log("logout")}
+      />
+      <div
         className={`flex-1 min-h-screen bg-slate-100 p-6 transition-all duration-300 ${
           sidebarOpen ? "ml-64" : "ml-20"
         }`}
       >
-      {/* Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Products</h1>
-          <p className="text-slate-500 mt-1">
-            {loading
-              ? "Loading..."
-              : `${products.length} product${products.length !== 1 ? "s" : ""}`}
-          </p>
+        {/* Header */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Products</h1>
+            <p className="text-slate-500 mt-1">
+              {loading
+                ? "Loading..."
+                : `${products.length} product${products.length !== 1 ? "s" : ""}`}
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => fetchProducts(page)}
+              disabled={loading}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button variant="outline" onClick={() => setShowBulkModal(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Bulk Upload
+            </Button>
+            <Button onClick={openAdd}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </Button>
+            <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
+          </div>
         </div>
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => fetchProducts(page)}
-            disabled={loading}
-          >
-            <RefreshCw
-              className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button>
-          <Button variant="outline" onClick={() => setShowBulkModal(true)}>
-            <Upload className="w-4 h-4 mr-2" />
-            Bulk Upload
-          </Button>
-          <Button onClick={openAdd}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Product
-          </Button>
-           <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-        </div>
-      </div>
 
-      {/* Search */}
-      <div className="relative mb-4">
+
+      <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
           type="text"
-          placeholder="Search by name, SKU, or category..."
+          placeholder="Search by name, slug, or description..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
@@ -855,233 +843,57 @@ useEffect(() => {
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: "Total Products", value: products.length },
-          {
-            label: "In Stock",
-            value: products.filter((p) => (p.stock_quantity || 0) > 0).length,
-          },
-          {
-            label: "Out of Stock",
-            value: products.filter((p) => (p.stock_quantity || 0) === 0).length,
-          },
-          {
-            label: "Categories",
-            value: new Set(products.map((p) => p.category).filter(Boolean)).size,
-          },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm"
-          >
-            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-              {s.label}
-            </p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">{s.value}</p>
-          </div>
-        ))}
+
+
+        {/* ← Reusable ProductTable */}
+        <AppTable
+          data={products}
+          columns={productColumns}
+          loading={loading}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={(p) => {
+            setPage(p);
+            fetchProducts(p);
+          }}
+          emptyMessage="No products"
+        />
+
+        {/* Modals */}
+        <ProductModal
+          open={showModal}
+          editingId={editingId}
+          form={form}
+          categories={categories}
+          onChange={setForm}
+          onSubmit={handleSave}
+          onClose={closeModal}
+          saving={saving}
+          imagePreview={imagePreview}
+          uploadingImage={uploadingImage}
+          onImageChange={handleImageChange}
+        />
+
+        <BulkUploadModal
+          open={showBulkModal}
+          file={bulkFile}
+          loading={bulkLoading}
+          onFileChange={setBulkFile}
+          onSubmit={handleBulkUpload}
+          onClose={() => { setShowBulkModal(false); setBulkFile(null); }}
+          onDownloadTemplate={handleDownloadTemplate}
+        />
+
+        <DeleteModal
+          open={!!deleteTarget}
+          productName={deleteTarget?.name || ""}
+          onConfirm={handleDelete}
+          onClose={() => setDeleteTarget(null)}
+          deleting={deleting}
+        />
       </div>
-
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        {loading ? (
-          <div className="py-20 text-center">
-            <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-slate-500">Loading products...</p>
-          </div>
-        ) : filtered.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  {[
-                    "Image",
-                    "Name",
-                    "SKU",
-                    "Category",
-                    "Price",
-                    "Stock",
-                    "Actions",
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="hover:bg-slate-50 transition-colors group"
-                  >
-                    <td className="px-5 py-4">
-                      {product.image_url ? (
-                        <img
-                          src={product.image_url}
-                          alt={product.name}
-                          className="w-12 h-12 object-cover rounded-lg border border-slate-200"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center">
-                          <Package className="w-5 h-5 text-slate-300" />
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-5 py-4">
-                      <p className="font-semibold text-slate-900 text-sm">
-                        {product.name}
-                      </p>
-                      {product.description && (
-                        <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
-                          {product.description}
-                        </p>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-slate-500 font-mono">
-                      {product.sku || "—"}
-                    </td>
-                    <td className="px-5 py-4">
-                      {product.category ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                          {product.category}
-                        </span>
-                      ) : (
-                        <span className="text-slate-300 text-sm">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-sm font-bold text-slate-900">
-                      ₹{product.price?.toLocaleString()}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          (product.stock_quantity || 0) > 10
-                            ? "bg-emerald-50 text-emerald-700"
-                            : (product.stock_quantity || 0) > 0
-                            ? "bg-yellow-50 text-yellow-700"
-                            : "bg-red-50 text-red-600"
-                        }`}
-                      >
-                        {product.stock_quantity ?? 0}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => openEdit(product)}
-                          className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                          title="Edit"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteTarget(product)}
-                          className="p-2 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="py-20 text-center">
-            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-              <Package className="w-8 h-8 text-slate-300" />
-            </div>
-            <p className="text-slate-600 font-medium">
-              {searchQuery ? "No products match your search" : "No products yet"}
-            </p>
-            {searchQuery ? (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="mt-2 text-sm text-primary hover:underline"
-              >
-                Clear search
-              </button>
-            ) : (
-              <Button className="mt-4" onClick={openAdd}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add First Product
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-slate-500">
-            Page {page} of {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Modals */}
-      <ProductModal
-        open={showModal}
-        editingId={editingId}
-        form={form}
-        categories={categories}
-        onChange={setForm}
-        onSubmit={handleSave}
-        onClose={closeModal}
-        saving={saving}
-        imagePreview={imagePreview}
-        uploadingImage={uploadingImage}
-        onImageChange={handleImageChange}
-      />
-
-      <BulkUploadModal
-        open={showBulkModal}
-        file={bulkFile}
-        loading={bulkLoading}
-        onFileChange={setBulkFile}
-        onSubmit={handleBulkUpload}
-        onClose={() => {
-          setShowBulkModal(false);
-          setBulkFile(null);
-        }}
-        onDownloadTemplate={handleDownloadTemplate}
-      />
-
-      <DeleteModal
-        open={!!deleteTarget}
-        productName={deleteTarget?.name || ""}
-        onConfirm={handleDelete}
-        onClose={() => setDeleteTarget(null)}
-        deleting={deleting}
-      />
-    </div>
     </div>
   );
 }

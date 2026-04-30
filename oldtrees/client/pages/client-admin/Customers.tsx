@@ -4,7 +4,6 @@ import { Users, Plus, Edit, Trash2, X, Search, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
 import {
   getClientCustomers,
   updateClientCustomer,
@@ -13,6 +12,8 @@ import {
 } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 import Sidebar, { TabType } from "./sidebar";
+import AppTable, { Column } from "@/components/client_Ui/table";
+
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -447,6 +448,65 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
     );
   });
 
+
+
+  const columns: Column<Customer>[] = [
+  {
+    header: "Name",
+    render: (customer) => (
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+          {(customer.first_name?.[0] || "?").toUpperCase()}
+        </div>
+        <p className="font-semibold text-sm">
+          {customer.first_name} {customer.last_name}
+        </p>
+      </div>
+    ),
+  },
+  {
+    header: "Email",
+    render: (c) => <span className="text-sm">{c.email}</span>,
+  },
+  {
+    header: "Phone",
+    render: (c) =>
+      c.phone || <span className="text-slate-300">—</span>,
+  },
+  {
+    header: "Location",
+    render: (c) =>
+      c.city && c.state
+        ? `${c.city}, ${c.state}`
+        : c.city || c.state || <span className="text-slate-300">—</span>,
+  },
+  {
+    header: "Orders",
+    render: (c) => (
+      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold">
+        {c.total_orders || 0}
+      </span>
+    ),
+  },
+  {
+    header: "Total Spent",
+    render: (c) => `₹${(c.total_spent || 0).toLocaleString()}`,
+  },
+  {
+    header: "Actions",
+    render: (c) => (
+      <div className="flex gap-2">
+        <button onClick={() => openEditModal(c)}>
+          <Edit className="w-4 h-4 text-blue-600" />
+        </button>
+        <button onClick={() => confirmDelete(c)}>
+          <Trash2 className="w-4 h-4 text-red-500" />
+        </button>
+      </div>
+    ),
+  },
+];
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -513,41 +573,6 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
           </button>
         )}
       </div>
-
-      {/* Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: "Total Customers", value: customers.length },
-          {
-            label: "Total Orders",
-            value: customers.reduce((s, c) => s + (c.total_orders || 0), 0),
-          },
-          {
-            label: "Total Revenue",
-            value: `₹${customers.reduce((s, c) => s + (c.total_spent || 0), 0).toLocaleString()}`,
-          },
-          {
-            label: "Avg. Spent",
-            value: customers.length
-              ? `₹${Math.round(
-                  customers.reduce((s, c) => s + (c.total_spent || 0), 0) /
-                    customers.length
-                ).toLocaleString()}`
-              : "₹0",
-          },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm"
-          >
-            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-              {stat.label}
-            </p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</p>
-          </div>
-        ))}
-      </div>
-
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {loading ? (
@@ -557,89 +582,17 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
           </div>
         ) : filtered.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  {["Name", "Email", "Phone", "Location", "Orders", "Total Spent", "Actions"].map(
-                    (h) => (
-                      <th
-                        key={h}
-                        className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide"
-                      >
-                        {h}
-                      </th>
-                    )
-                  )}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((customer) => (
-                  <tr
-                    key={customer.id}
-                    className="hover:bg-slate-50 transition-colors group"
-                  >
-                    {/* Name + Avatar */}
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">
-                          {(customer.first_name?.[0] || "?").toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900 text-sm">
-                            {customer.first_name} {customer.last_name}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="px-5 py-4 text-sm text-slate-600">
-                      {customer.email}
-                    </td>
-
-                    <td className="px-5 py-4 text-sm text-slate-600">
-                      {customer.phone || <span className="text-slate-300">—</span>}
-                    </td>
-
-                    <td className="px-5 py-4 text-sm text-slate-600">
-                      {customer.city && customer.state
-                        ? `${customer.city}, ${customer.state}`
-                        : customer.city || customer.state || (
-                            <span className="text-slate-300">—</span>
-                          )}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold">
-                        {customer.total_orders || 0}
-                      </span>
-                    </td>
-
-                    <td className="px-5 py-4 text-sm font-semibold text-slate-900">
-                      ₹{(customer.total_spent || 0).toLocaleString()}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => openEditModal(customer)}
-                          className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                          title="Edit customer"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => confirmDelete(customer)}
-                          className="p-2 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
-                          title="Delete customer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+         <AppTable
+  data={filtered}
+  columns={columns}
+  loading={loading}
+  searchQuery={searchQuery}
+  onSearchChange={setSearchQuery}
+  searchPlaceholder="Search customers..."
+  emptyMessage="No customers found"
+  onAddFirst={openAddModal}
+  addLabel="Add Customer"
+/>
           </div>
         ) : (
           <div className="py-20 text-center">

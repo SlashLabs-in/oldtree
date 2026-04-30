@@ -21,6 +21,10 @@ import {
 import { useTenant } from "@/hooks/use-tenant";
 import Sidebar, { TabType } from "./sidebar";
 
+import AppTable, { Column } from "@/components/client_Ui/table";
+
+
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface OrderItem {
@@ -462,6 +466,108 @@ export default function OrdersPage() {
   const deliveredCount = orders.filter((o) => o.status === "delivered").length;
 
   // ── Render ─────────────────────────────────────────────────────────────────
+const columns: Column<Order>[] = [
+  {
+    header: "Order #",
+    render: (o) => (
+      <span className="font-semibold text-slate-900 text-sm">
+        {o.order_number}
+      </span>
+    ),
+  },
+  {
+    header: "Customer",
+    render: (o) => (
+      <div>
+        <p className="font-medium text-slate-900 text-sm">
+          {o.customer_name}
+        </p>
+        <p className="text-xs text-slate-500">{o.customer_email}</p>
+      </div>
+    ),
+  },
+  {
+    header: "Amount",
+    render: (o) => (
+      <span className="font-semibold text-slate-900 text-sm">
+        ₹{o.total_amount?.toLocaleString()}
+      </span>
+    ),
+  },
+  {
+    header: "Payment",
+    render: (o) => (
+      <select
+        value={o.payment_status || "pending"}
+        onChange={(e) =>
+          handleUpdatePaymentStatus(o.id, e.target.value)
+        }
+        className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${paymentStatusStyle(
+          o.payment_status || "pending"
+        )}`}
+      >
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="completed">Completed</option>
+        <option value="failed">Failed</option>
+      </select>
+    ),
+  },
+  {
+    header: "Status",
+    render: (o) => (
+      <select
+        value={o.status}
+        onChange={(e) =>
+          handleUpdateOrderStatus(o.id, e.target.value)
+        }
+        className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${orderStatusStyle(
+          o.status
+        )}`}
+      >
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+      </select>
+    ),
+  },
+  {
+    header: "Date",
+    render: (o) => (
+      <span className="text-xs text-slate-500">
+        {new Date(o.created_at).toLocaleDateString()}
+      </span>
+    ),
+  },
+  {
+    header: "Actions",
+    render: (o) => (
+      <div className="flex gap-1">
+        <button
+          onClick={() => {
+            setSelectedOrder(o);
+            setShowOrderModal(true);
+          }}
+          className="p-2 rounded-lg hover:bg-blue-50 text-blue-600"
+        >
+          <Eye className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => handleDownloadPDF(o)}
+          className="p-2 rounded-lg hover:bg-green-50 text-green-600"
+        >
+          <Download className="w-4 h-4" />
+        </button>
+      </div>
+    ),
+  },
+];
+
+
+
+
+
 
   return (
      <div className="flex">
@@ -509,20 +615,7 @@ export default function OrdersPage() {
 </div>
       </div>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: "Total Orders", value: orders.length },
-          { label: "Pending", value: pendingCount },
-          { label: "Delivered", value: deliveredCount },
-          { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}` },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{stat.label}</p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</p>
-          </div>
-        ))}
-      </div>
+     
 
       {/* Filters Row */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -566,93 +659,19 @@ export default function OrdersPage() {
           </div>
         ) : filtered.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  {["Order #", "Customer", "Amount", "Payment", "Status", "Date", "Actions"].map(
-                    (h) => (
-                      <th
-                        key={h}
-                        className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide"
-                      >
-                        {h}
-                      </th>
-                    )
-                  )}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50 transition-colors group">
-                    <td className="px-5 py-4">
-                      <span className="font-semibold text-slate-900 text-sm">
-                        {order.order_number}
-                      </span>
-                    </td>
-
-                    <td className="px-5 py-4">
-                      <p className="font-medium text-slate-900 text-sm">{order.customer_name}</p>
-                      <p className="text-xs text-slate-500">{order.customer_email}</p>
-                    </td>
-
-                    <td className="px-5 py-4 font-semibold text-slate-900 text-sm">
-                      ₹{order.total_amount?.toLocaleString()}
-                    </td>
-
-                    {/* Payment Status Inline Select */}
-                    <td className="px-5 py-4">
-                      <select
-                        value={order.payment_status || "pending"}
-                        onChange={(e) => handleUpdatePaymentStatus(order.id, e.target.value)}
-                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${paymentStatusStyle(order.payment_status || "pending")}`}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="completed">Completed</option>
-                        <option value="failed">Failed</option>
-                      </select>
-                    </td>
-
-                    {/* Order Status Inline Select */}
-                    <td className="px-5 py-4">
-                      <select
-                        value={order.status}
-                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
-                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${orderStatusStyle(order.status)}`}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                      </select>
-                    </td>
-
-                    <td className="px-5 py-4 text-xs text-slate-500">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => { setSelectedOrder(order); setShowOrderModal(true); }}
-                          className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                          title="View order"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDownloadPDF(order)}
-                          className="p-2 rounded-lg hover:bg-green-50 text-green-600 transition-colors"
-                          title="Download invoice"
-                        >
-                          <Download className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <AppTable
+  data={filtered}
+  columns={columns}
+  loading={loading}
+  searchQuery={searchQuery}
+  onSearchChange={setSearchQuery}
+  searchPlaceholder="Search by order #, customer name or email..."
+  emptyMessage={
+    searchQuery || statusFilter !== "all"
+      ? "No orders match your filters"
+      : "No orders yet"
+  }
+/>
           </div>
         ) : (
           <div className="py-20 text-center">
