@@ -417,31 +417,129 @@ export default function OrdersPage() {
     if (w) { w.document.write(printContent); w.document.close(); w.print(); }
   };
 
-  const handleDownloadPDF = (order: Order) => {
-    const items: OrderItem[] = Array.isArray(order.items) ? order.items : [];
-    const companyName = businessDetails?.company_name || "Store";
-    const html = `<!DOCTYPE html><html><head><title>Invoice - ${order.order_number}</title>
-    <style>body{font-family:Arial,sans-serif;padding:40px;max-width:800px;margin:auto}h1{color:#1e40af}table{width:100%;border-collapse:collapse;margin:20px 0}th{background:#f3f4f6;padding:10px;text-align:left;border:1px solid #e5e7eb}td{padding:10px;border:1px solid #e5e7eb}.total{font-weight:bold;font-size:18px;color:#1e40af}</style>
-    </head><body>
-    <h1>Invoice</h1><p><strong>${companyName}</strong></p>
-    <p><strong>Order #:</strong> ${order.order_number}</p>
-    <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
-    <p><strong>Customer:</strong> ${order.customer_name} | ${order.customer_email}</p>
-    <table><thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
-    <tbody>${items.map((i) => `<tr><td>${i.product_name || i.product_id}</td><td>${i.quantity}</td><td>₹${i.unit_price}</td><td>₹${i.total_price}</td></tr>`).join("")}</tbody>
-    </table>
-    <p class="total">Total: ₹${order.total_amount.toLocaleString()}</p>
-    <p><strong>Status:</strong> ${order.status} | <strong>Payment:</strong> ${order.payment_status || "pending"}</p>
-    </body></html>`;
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `Order-${order.order_number}.html`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-    toast.success("Invoice downloaded! Open in browser and print to PDF.");
-  };
+  // const handleDownloadPDF = (order: Order) => {
+  //   const items: OrderItem[] = Array.isArray(order.items) ? order.items : [];
+  //   const companyName = businessDetails?.company_name || "Store";
+  //   const html = `<!DOCTYPE html><html><head><title>Invoice - ${order.order_number}</title>
+  //   <style>body{font-family:Arial,sans-serif;padding:40px;max-width:800px;margin:auto}h1{color:#1e40af}table{width:100%;border-collapse:collapse;margin:20px 0}th{background:#f3f4f6;padding:10px;text-align:left;border:1px solid #e5e7eb}td{padding:10px;border:1px solid #e5e7eb}.total{font-weight:bold;font-size:18px;color:#1e40af}</style>
+  //   </head><body>
+  //   <h1>Invoice</h1><p><strong>${companyName}</strong></p>
+  //   <p><strong>Order #:</strong> ${order.order_number}</p>
+  //   <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
+  //   <p><strong>Customer:</strong> ${order.customer_name} | ${order.customer_email}</p>
+  //   <table><thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+  //   <tbody>${items.map((i) => `<tr><td>${i.product_name || i.product_id}</td><td>${i.quantity}</td><td>₹${i.unit_price}</td><td>₹${i.total_price}</td></tr>`).join("")}</tbody>
+  //   </table>
+  //   <p class="total">Total: ₹${order.total_amount.toLocaleString()}</p>
+  //   <p><strong>Status:</strong> ${order.status} | <strong>Payment:</strong> ${order.payment_status || "pending"}</p>
+  //   </body></html>`;
+  //   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  //   const link = document.createElement("a");
+  //   link.href = URL.createObjectURL(blob);
+  //   link.download = `Order-${order.order_number}.html`;
+  //   link.click();
+  //   URL.revokeObjectURL(link.href);
+  //   toast.success("Invoice downloaded! Open in browser and print to PDF.");
+  // };
+const handleDownloadPDF = (order: Order) => {
+  const items: OrderItem[] = Array.isArray(order.items) ? order.items : [];
+  const companyName = businessDetails?.company_name || "Store";
 
+  const format = (val: any) =>
+    parseFloat(val || 0).toLocaleString("en-IN");
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Invoice - ${order.order_number}</title>
+<style>
+  body { font-family: Arial; padding: 20px; }
+  .box { border: 2px solid #000; }
+  .row { display: flex; border-bottom: 1px solid #000; }
+  .col { flex: 1; padding: 10px; border-right: 1px solid #000; }
+  .col:last-child { border-right: none; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #000; padding: 6px; font-size: 12px; }
+  th { background: #f0f0f0; }
+  .right { text-align: right; }
+  .center { text-align: center; }
+</style>
+</head>
+
+<body>
+<div class="box">
+
+  <!-- Header -->
+  <div class="row">
+    <div class="col">
+      <b>${companyName}</b>
+    </div>
+    <div class="col">
+      <b>Bill No:</b> ${order.order_number}<br/>
+      <b>Date:</b> ${new Date(order.created_at).toLocaleDateString()}<br/>
+      <b>Payment:</b> ${order.payment_status || "Pending"}
+    </div>
+  </div>
+
+  <!-- Customer -->
+  <div class="row">
+    <div class="col">
+      <b>Billed To:</b><br/>
+      ${order.customer_name}<br/>
+      ${order.customer_email}<br/>
+      ${order.customer_phone || ""}
+    </div>
+    <div class="col">
+      <b>Status:</b> ${order.status}
+    </div>
+  </div>
+
+  <!-- Items Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Item Name</th>
+        <th>Rate</th>
+        <th>Qty</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${items.map((i, idx) => `
+        <tr>
+          <td class="center">${idx + 1}</td>
+          <td>${i.product_name || i.product_id}</td>
+          <td class="right">₹${format(i.unit_price)}</td>
+          <td class="center">${i.quantity}</td>
+          <td class="right">₹${format(i.total_price)}</td>
+        </tr>
+      `).join("")}
+    </tbody>
+  </table>
+
+  <!-- Total -->
+  <div class="row">
+    <div class="col right">
+      <b>Total Amount: ₹${format(order.total_amount)}</b>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
+`;
+
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `Order-${order.order_number}.html`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+
+  toast.success("Invoice downloaded! Open & print to PDF.");
+};
   // ── Filter ─────────────────────────────────────────────────────────────────
 
   const filtered = orders.filter((o) => {
