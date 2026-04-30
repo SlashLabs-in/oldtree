@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { getClientAdminDashboard } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 import Sidebar, { TabType } from "./sidebar";
-
+import Header from "@/components/client_Ui/Header";
 // ─── Types ─────────────────────────────────────────────────
 
 interface DashboardData {
@@ -214,8 +214,14 @@ export default function DashboardPage() {
           sidebarOpen ? "ml-64" : "ml-20"
         }`}
       >
+
+<Header
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          title="Dashboard"
+        />
+
         {/* Header */}
-        <div className="flex justify-between mb-6">
+        {/* <div className="flex justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
@@ -230,7 +236,7 @@ export default function DashboardPage() {
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-        </div>
+        </div> */}
 
         {/* Loading */}
         {loading ? (
@@ -238,7 +244,7 @@ export default function DashboardPage() {
         ) : (
           <>
             {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mt-5 gap-4 mb-6">
               {stats.map((s) => (
                 <StatCard key={s.label} {...s} />
               ))}
