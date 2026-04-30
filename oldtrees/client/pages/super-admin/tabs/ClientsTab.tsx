@@ -4,6 +4,7 @@ import { Plus, X, Edit, Trash2, Pause, Play } from "lucide-react";
 
 interface ClientsTabProps {
   clients: any[];
+   pricing?: any[];
   showClientModal: boolean;
   editingClientId: string | null;
   clientForm: {
@@ -24,6 +25,7 @@ interface ClientsTabProps {
 
 export function ClientsTab({
   clients,
+  pricing = [],
   showClientModal,
   editingClientId,
   clientForm,
@@ -130,7 +132,7 @@ export function ClientsTab({
                 </div>
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">
                   Billing Plan *
                 </label>
@@ -144,6 +146,29 @@ export function ClientsTab({
                   }
                   required
                 />
+              </div> */}
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">
+                  Billing Plan *
+                </label>
+                <select
+                  value={clientForm.billingPlan}
+                  onChange={(e) =>
+                    onFormChange({
+                      ...clientForm,
+                      billingPlan: e.target.value,
+                    })
+                  }
+                  required
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-white"
+                >
+                  <option value="">Select a plan</option>
+                  {pricing.map((plan: any) => (
+                    <option key={plan.id} value={plan.name}>
+                      {plan.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex gap-3 pt-4">

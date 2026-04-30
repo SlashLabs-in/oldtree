@@ -474,6 +474,7 @@ export default function SuperAdminDashboard() {
           {currentTab === "clients" && (
             <ClientsTab
               clients={clients}
+              pricing={pricing}
               showClientModal={showClientModal}
               editingClientId={editingClientId}
               clientForm={clientForm}
