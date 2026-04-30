@@ -26,7 +26,7 @@ import {
 import { useTenant } from "@/hooks/use-tenant";
 
 import AppTable, { Column } from "@/components/client_Ui/table";
-
+import Header from "@/components/client_Ui/Header";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface Discount {
@@ -603,54 +603,54 @@ const columns: Column<Discount>[] = [
               sidebarOpen ? "ml-64" : "ml-20"
             }`}
           >
-      {/* Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Discounts</h1>
-          <p className="text-slate-500 mt-1">
-            {loading
-              ? "Loading..."
-              : `${discounts.length} discount code${discounts.length !== 1 ? "s" : ""}`}
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={fetchDiscounts}
-            disabled={loading}
-          >
-            <RefreshCw
-              className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button>
-          <Button onClick={openAdd}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Discount
-          </Button>
-          <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-        </div>
-      </div>
 
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input
-          type="text"
-          placeholder="Search by code or description..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+            
+            <Header
+                      onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                      title="Discounts"
+                    />
+
+      {/* Header */}
+   <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4 mt-5">
+
+  {/*  Search (flexible) */}
+  <div className="relative flex-1">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+    
+    <input
+      type="text"
+      placeholder="Search by code or description..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+    />
+
+    {searchQuery && (
+      <button
+        onClick={() => setSearchQuery("")}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+      >
+        <X className="w-4 h-4" />
+      </button>
+    )}
+  </div>
+
+  {/*  Buttons (fixed, no wrap) */}
+  <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+    
+
+    <Button onClick={openAdd}>
+      <Plus className="w-4 h-4 mr-2" />
+      Add Discount
+    </Button>
+
+  
+
+  </div>
+
+</div>
+
+     
 
      
       {/* Table */}

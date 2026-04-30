@@ -13,7 +13,7 @@ import {
 import { useTenant } from "@/hooks/use-tenant";
 import Sidebar, { TabType } from "./sidebar";
 import AppTable, { Column } from "@/components/client_Ui/table";
-
+import Header from "@/components/client_Ui/Header";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -533,46 +533,51 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
               sidebarOpen ? "ml-64" : "ml-20"
             }`}
           >
+
+            <Header
+                      onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                      title="Customers"
+                    />
+
             {/* Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Customers</h1>
-          <p className="text-slate-500 mt-1">
-            {loading ? "Loading..." : `${customers.length} total customer${customers.length !== 1 ? "s" : ""}`}
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={fetchCustomers} disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <Button onClick={openAddModal}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Customer
-          </Button>
-            <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-        </div>
-      </div>
+ <div className="mb-6 flex items-center gap-4 mt-5">
+
+  {/*  Search */}
+  <div className="relative flex-1">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+    
+    <input
+      type="text"
+      placeholder="Search by name, email, or phone..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+    />
+
+    {searchQuery && (
+      <button
+        onClick={() => setSearchQuery("")}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+      >
+        <X className="w-4 h-4" />
+      </button>
+    )}
+  </div>
+
+  {/* 🔘 Buttons (fixed width, no wrap) */}
+  <div className="flex items-center gap-3 shrink-0">
+  
+
+    <Button onClick={openAddModal}>
+      <Plus className="w-4 h-4 mr-2" />
+      Add Customer
+    </Button>
+  </div>
+
+</div>
 
       {/* Search Bar */}
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input
-          type="text"
-          placeholder="Search by name, email, or phone..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+     
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {loading ? (

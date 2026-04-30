@@ -26,7 +26,7 @@ import { useTenant } from "@/hooks/use-tenant";
 
 import Sidebar, { TabType } from "./sidebar";
 
-
+import Header from "@/components/client_Ui/Header";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -537,57 +537,65 @@ useEffect(() => {
              sidebarOpen ? "ml-64" : "ml-20"
            }`}
          >
-      {/* Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Pages</h1>
-          <p className="text-slate-500 mt-1">
-            {loading ? "Loading..." : `${pages.length} page${pages.length !== 1 ? "s" : ""} on this page`}
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={() => fetchPages()} disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <Button onClick={openAddModal}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Page
-          </Button>
-          <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-        </div>
-      </div>
 
-      {/* Filters Row */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search pages by title, slug or description..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-          className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+          <Header
+                    onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                    title="Pages"
+                  />
+      {/* Page Header */}
+     <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4 mt-5">
+
+  {/*  LEFT: Search + Filter */}
+  <div className="flex flex-col sm:flex-row gap-3 flex-1 min-w-0">
+
+    {/* Search */}
+    <div className="relative flex-1 min-w-0">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      
+      <input
+        type="text"
+        placeholder="Search pages by title, slug or description..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+      />
+
+      {searchQuery && (
+        <button
+          onClick={() => setSearchQuery("")}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
         >
-          <option value="all">All Pages</option>
-          <option value="published">Published</option>
-          <option value="draft">Draft</option>
-        </select>
-      </div>
+          <X className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+
+    {/* Filter */}
+    <select
+      value={statusFilter}
+      onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+      className="w-full sm:w-[180px] border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 shrink-0"
+    >
+      <option value="all">All Pages</option>
+      <option value="published">Published</option>
+      <option value="draft">Draft</option>
+    </select>
+
+  </div>
+
+  {/* 🔘 RIGHT: Buttons */}
+  <div className="flex items-center gap-3 shrink-0">
+ 
+
+    <Button onClick={openAddModal}>
+      <Plus className="w-4 h-4 mr-2" />
+      Add Page
+    </Button>
+  </div>
+
+</div>
+
+   
 
       {/* Cards / Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

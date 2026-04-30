@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { getContactUs, updateContactUs,getSuperAdminPricing,getBusinessDetails } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 import Sidebar, { TabType } from "./sidebar";
+import Header from "@/components/client_Ui/Header";
+
+
 function ProfilePlanButton({ pricing, businessDetails }: { pricing: any[]; businessDetails: any }) {
   const [show, setShow] = useState(false);
 
@@ -219,24 +222,17 @@ useEffect(() => {
              sidebarOpen ? "ml-64" : "ml-20"
            }`}
          >
-      {/* Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Contact Us</h1>
-          <p className="text-slate-500 mt-1">
-            Manage your store's contact information displayed to customers
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={fetchContactUs} disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-        </div>
-      </div>
 
-      <form onSubmit={handleSave} className="space-y-6">
+          <Header
+                    onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                    title="Contact"
+                  />
+
+
+      {/* Page Header */}
+     
+
+      <form onSubmit={handleSave} className="space-y-6 mt-5">
         {/* Contact Details */}
         <SectionCard
           icon={Phone}

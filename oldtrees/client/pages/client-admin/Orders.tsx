@@ -23,7 +23,7 @@ import Sidebar, { TabType } from "./sidebar";
 
 import AppTable, { Column } from "@/components/client_Ui/table";
 
-
+import Header from "@/components/client_Ui/Header";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -691,62 +691,60 @@ const columns: Column<Order>[] = [
              sidebarOpen ? "ml-64" : "ml-20"
            }`}
          >
-      {/* Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Orders</h1>
-          <p className="text-slate-500 mt-1">
-            {loading ? "Loading..." : `${orders.length} total order${orders.length !== 1 ? "s" : ""}`}
-          </p>
-        </div>
-        {/* <Button variant="outline" onClick={fetchOrders} disabled={loading}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </Button> */}
-        <div className="flex items-center gap-3">
-    <Button variant="outline" onClick={fetchOrders} disabled={loading}>
-    <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-    Refresh
-  </Button>
-  {/* <ProfilePlanButton pricing={pricing} /> */}
-  <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-</div>
-      </div>
 
+<Header
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          title="Orders"
+        />
+
+      {/* Page Header */}
+     {/* Page Header */}
+<div className="flex flex-col sm:flex-row gap-3 mb-6 mt-5">
+
+  {/* 🔍 Search - 80% */}
+  <div className="relative w-full sm:basis-[80%]">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+    
+    <input
+      type="text"
+      placeholder="Search by order #, customer name or email..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+    />
+
+    {searchQuery && (
+      <button
+        onClick={() => setSearchQuery("")}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+      >
+        <X className="w-4 h-4" />
+      </button>
+    )}
+  </div>
+
+  {/* 🔘 Filter + Refresh - 20% */}
+  <div className="flex items-center gap-3 w-full sm:basis-[20%] sm:justify-end">
+
+    <select
+      value={statusFilter}
+      onChange={(e) => setStatusFilter(e.target.value)}
+      className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white"
+    >
+      <option value="all">All Statuses</option>
+      <option value="pending">Pending</option>
+      <option value="processing">Processing</option>
+      <option value="shipped">Shipped</option>
+      <option value="delivered">Delivered</option>
+    </select>
+
+  
+
+  </div>
+
+</div>
      
 
-      {/* Filters Row */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by order #, customer name or email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-        >
-          <option value="all">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-        </select>
-      </div>
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

@@ -18,7 +18,7 @@ import { useTenant } from "@/hooks/use-tenant";
 
 import Sidebar, { TabType } from "./sidebar";
 
-
+import Header from "@/components/client_Ui/Header";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface PaymentImage {
@@ -300,24 +300,14 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
              sidebarOpen ? "ml-64" : "ml-20"
            }`}
          >
-      {/* Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Payment Information</h1>
-          <p className="text-slate-500 mt-1">
-            Configure bank, GPay, and UPI payment details for your customers
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={fetchPaymentInfo} disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-        </div>
-      </div>
+<Header
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          title="Payment Information"
+        />
 
-      <form onSubmit={handleSave} className="space-y-6">
+  
+
+      <form onSubmit={handleSave} className="space-y-6 mt-5">
         {/* Bank Account */}
         <SectionCard
           icon={Building2}

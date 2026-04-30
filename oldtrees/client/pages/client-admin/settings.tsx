@@ -23,7 +23,7 @@ import {
 } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 import Sidebar, { TabType } from "./sidebar";
-
+import Header from "@/components/client_Ui/Header";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface BusinessForm {
@@ -473,29 +473,23 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
             sidebarOpen ? "ml-64" : "ml-20"
           }`}
         >
+
+          <Header
+                    onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                    title="Settings"
+                  />
+
+
       {/* Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Settings className="w-6 h-6 text-primary" />
-            <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
-          </div>
-          <p className="text-slate-500">Manage your store configuration and team</p>
-        </div>
-        <Button variant="outline" onClick={fetchAll} disabled={loading}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </Button>
-         <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-      </div>
+    
 
       {loading ? (
-        <div className="py-20 text-center">
+        <div className="py-20 text-center mt-5">
           <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-slate-500">Loading settings...</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 mt-5">
           {/* ── Business Details ─────────────────────────────────────────── */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
             <h3 className="text-lg font-semibold text-slate-900 mb-6">Business Details</h3>

@@ -18,6 +18,8 @@ import { useTenant } from "@/hooks/use-tenant";
 import Sidebar from "./sidebar";
 // import ProductTable, { Product } from ".../components/client_Ui/table";
 import AppTable, { Column } from "@/components/client_Ui/table";
+
+import Header from "@/components/client_Ui/Header";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ProductForm {
@@ -792,56 +794,57 @@ export default function ProductPage() {
           sidebarOpen ? "ml-64" : "ml-20"
         }`}
       >
-        {/* Header */}
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Products</h1>
-            <p className="text-slate-500 mt-1">
-              {loading
-                ? "Loading..."
-                : `${products.length} product${products.length !== 1 ? "s" : ""}`}
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => fetchProducts(page)}
-              disabled={loading}
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
-            <Button variant="outline" onClick={() => setShowBulkModal(true)}>
-              <Upload className="w-4 h-4 mr-2" />
-              Bulk Upload
-            </Button>
-            <Button onClick={openAdd}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Product
-            </Button>
-            <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
-          </div>
-        </div>
 
 
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input
-          type="text"
-          placeholder="Search by name, slug, or description..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+<Header
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          title="Products"
         />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+
+        {/* Header */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4 mt-5">
+  
+  
+  <div className="relative w-full sm:basis-[80%]">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+    
+    <input
+      type="text"
+      placeholder="Search by name, slug, or description..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+    />
+
+    {searchQuery && (
+      <button
+        onClick={() => setSearchQuery("")}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+      >
+        <X className="w-4 h-4" />
+      </button>
+    )}
+  </div>
+
+  {/* 🔘 Buttons - 20% */}
+  <div className="flex gap-3 w-full sm:basis-[20%] sm:justify-end">
+   
+
+    <Button variant="outline" onClick={() => setShowBulkModal(true)}>
+      <Upload className="w-4 h-4 mr-2" />
+      Bulk Upload
+    </Button>
+
+    <Button onClick={openAdd}>
+      <Plus className="w-4 h-4 mr-2" />
+      Add Product
+    </Button>
+  </div>
+
+</div>
+
+
+     
 
 
 
