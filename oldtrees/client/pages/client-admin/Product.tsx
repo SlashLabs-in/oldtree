@@ -9,6 +9,7 @@ import {
   RefreshCw,
   Upload,
   Download,
+  
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ import {
   updateClientProduct,
   deleteClientProduct,
   uploadProductImage,
+  getBusinessDetails, getSuperAdminPricing 
 } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 import Sidebar, { TabType } from "./sidebar";
@@ -423,10 +425,60 @@ function DeleteModal({
     </div>
   );
 }
+// ─── Profile Plan Tooltip Button ──────────────────────────────────────────────
+
+// function ProfilePlanButton({ pricing }: { pricing: any[] }) {
+//   const [show, setShow] = useState(false);
+
+//   // Get the first/current plan name from pricing data
+//   const currentPlan = pricing?.[0]?.name || "No Plan";
+function ProfilePlanButton({ pricing, businessDetails }: { pricing: any[]; businessDetails: any }) {
+  const [show, setShow] = useState(false);
+
+  // Match client's billing_plan key against pricing list
+  const billingPlanKey = businessDetails?.billing_plan || businessDetails?.billingPlan || "";
+  const matchedPlan = pricing.find(
+    (p) => p.name?.toLowerCase() === billingPlanKey?.toLowerCase()
+  );
+  const currentPlan = matchedPlan?.name || billingPlanKey || "No Plan";
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShow((v) => !v)}
+        className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm shadow hover:bg-violet-700 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400"
+        title="View current plan"
+      >
+        M
+      </button>
+
+      {show && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setShow(false)} />
+          <div className="absolute right-0 top-11 z-50 w-52 bg-white border border-slate-200 rounded-xl shadow-xl p-4">
+            <div className="absolute -top-2 right-3 w-4 h-4 bg-white border-l border-t border-slate-200 rotate-45" />
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1">
+              Current Plan
+            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-semibold">
+                ✦ {currentPlan}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-2">
+              Manage your plan in account settings.
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 // ─── Main ProductPage ─────────────────────────────────────────────────────────
 
 export default function ProductPage() {
+  const [pricing, setPricing] = useState<any[]>([]);
+const [businessDetails, setBusinessDetails] = useState<any>(null);
   const { tenantId } = useTenant();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -479,10 +531,20 @@ export default function ProductPage() {
     [tenantId]
   );
 
-  useEffect(() => {
-    fetchProducts(page);
-  }, [fetchProducts, page]);
+  // useEffect(() => {
+  //   fetchProducts(page);
+  // }, [fetchProducts, page]);
+useEffect(() => {
+  fetchProducts();
 
+  getBusinessDetails(tenantId || undefined)
+    .then((d) => setBusinessDetails(d.data))
+    .catch(() => {});
+
+  getSuperAdminPricing()
+    .then((d) => setPricing(d.data || []))
+    .catch(() => {});
+}, [fetchProducts, tenantId]);
   // ── Image upload ───────────────────────────────────────────────────────────
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -721,7 +783,7 @@ export default function ProductPage() {
   return (
    <div className="flex">
         {/* Sidebar */}
-        <Sidebar
+        {/* <Sidebar
           open={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
           currentTab={currentTab}
@@ -729,6 +791,11 @@ export default function ProductPage() {
           onLogout={() => console.log("logout")}
           domain="yourstore.com"
           companyName="My Store"
+        /> */}
+           <Sidebar
+          open={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          onLogout={() => console.log("logout")}
         />
      <div
         className={`flex-1 min-h-screen bg-slate-100 p-6 transition-all duration-300 ${
@@ -764,6 +831,7 @@ export default function ProductPage() {
             <Plus className="w-4 h-4 mr-2" />
             Add Product
           </Button>
+           <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
         </div>
       </div>
 

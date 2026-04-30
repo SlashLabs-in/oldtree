@@ -4,9 +4,47 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-import { getContactUs, updateContactUs } from "@/lib/api";
+import { getContactUs, updateContactUs,getSuperAdminPricing,getBusinessDetails } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 import Sidebar, { TabType } from "./sidebar";
+function ProfilePlanButton({ pricing, businessDetails }: { pricing: any[]; businessDetails: any }) {
+  const [show, setShow] = useState(false);
+
+  const billingPlanKey =
+    businessDetails?.billing_plan || businessDetails?.billingPlan || "";
+
+  const matchedPlan = pricing.find(
+    (p) => p.name?.toLowerCase() === billingPlanKey?.toLowerCase()
+  );
+
+  const currentPlan = matchedPlan?.name || billingPlanKey || "No Plan";
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShow((v) => !v)}
+        className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm shadow hover:bg-violet-700"
+      >
+        M
+      </button>
+
+      {show && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setShow(false)} />
+          <div className="absolute right-0 top-11 z-50 w-52 bg-white border rounded-xl shadow-xl p-4">
+            <p className="text-xs text-slate-500 mb-1">Current Plan</p>
+            <span className="px-2 py-1 bg-violet-100 text-violet-700 rounded text-xs font-semibold">
+              ✦ {currentPlan}
+            </span>
+            <p className="text-xs text-slate-400 mt-2">
+              Manage your plan in account settings.
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,6 +106,8 @@ function SectionCard({
 // ─── Main ContactUsPage Component ─────────────────────────────────────────────
 
 export default function ContactUsPage() {
+  const [pricing, setPricing] = useState<any[]>([]);
+const [businessDetails, setBusinessDetails] = useState<any>(null);
   const { tenantId } = useTenant();
 
   const [form, setForm] = useState<ContactUsForm>(EMPTY_FORM);
@@ -105,10 +145,20 @@ export default function ContactUsPage() {
     }
   }, [tenantId]);
 
-  useEffect(() => {
-    fetchContactUs();
-  }, [fetchContactUs]);
+  // useEffect(() => {
+  //   fetchContactUs();
+  // }, [fetchContactUs]);
+useEffect(() => {
+  fetchContactUs();
 
+  getBusinessDetails(tenantId || undefined)
+    .then((d) => setBusinessDetails(d.data))
+    .catch(() => {});
+
+  getSuperAdminPricing()
+    .then((d) => setPricing(d.data || []))
+    .catch(() => {});
+}, [fetchContactUs, tenantId]);
   // ── Save ───────────────────────────────────────────────────────────────────
 
   const handleSave = async (e: React.FormEvent) => {
@@ -148,7 +198,7 @@ export default function ContactUsPage() {
   return (
     <div className="flex">
          {/* Sidebar */}
-         <Sidebar
+         {/* <Sidebar
            open={sidebarOpen}
            onToggle={() => setSidebarOpen(!sidebarOpen)}
            currentTab={currentTab}
@@ -156,6 +206,11 @@ export default function ContactUsPage() {
            onLogout={() => console.log("logout")}
            domain="yourstore.com"
            companyName="My Store"
+         /> */}
+            <Sidebar
+           open={sidebarOpen}
+           onToggle={() => setSidebarOpen(!sidebarOpen)}
+           onLogout={() => console.log("logout")}
          />
    
          {/* Main Content */}
@@ -177,6 +232,7 @@ export default function ContactUsPage() {
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
+          <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
         </div>
       </div>
 

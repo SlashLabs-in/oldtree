@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-import { getEmailSettings, updateEmailSettings } from "@/lib/api";
+import { getEmailSettings, updateEmailSettings,getBusinessDetails, getSuperAdminPricing } from "@/lib/api";
 import { useTenant } from "@/hooks/use-tenant";
 
 
@@ -117,11 +117,55 @@ const SMTP_PRESETS = [
   { name: "Mailgun", host: "smtp.mailgun.org", port: 587 },
   { name: "Zoho", host: "smtp.zoho.com", port: 587 },
 ];
+function ProfilePlanButton({ pricing, businessDetails }: { pricing: any[]; businessDetails: any }) {
+  const [show, setShow] = useState(false);
+
+  // Match client's billing_plan key against pricing list
+  const billingPlanKey = businessDetails?.billing_plan || businessDetails?.billingPlan || "";
+  const matchedPlan = pricing.find(
+    (p) => p.name?.toLowerCase() === billingPlanKey?.toLowerCase()
+  );
+  const currentPlan = matchedPlan?.name || billingPlanKey || "No Plan";
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShow((v) => !v)}
+        className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm shadow hover:bg-violet-700 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400"
+        title="View current plan"
+      >
+        M
+      </button>
+
+      {show && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setShow(false)} />
+          <div className="absolute right-0 top-11 z-50 w-52 bg-white border border-slate-200 rounded-xl shadow-xl p-4">
+            <div className="absolute -top-2 right-3 w-4 h-4 bg-white border-l border-t border-slate-200 rotate-45" />
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1">
+              Current Plan
+            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-semibold">
+                ✦ {currentPlan}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-2">
+              Manage your plan in account settings.
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 // ─── Main EmailSettingsPage Component ────────────────────────────────────────
 
 export default function EmailSettingsPage() {
+   const [pricing, setPricing] = useState<any[]>([]);
+const [businessDetails, setBusinessDetails] = useState<any>(null);
   const { tenantId } = useTenant();
+
 
   const [form, setForm] = useState<EmailSettingsForm>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
@@ -155,9 +199,20 @@ export default function EmailSettingsPage() {
     }
   }, [tenantId]);
 
+  // useEffect(() => {
+  //   fetchSettings();
+  // }, [fetchSettings]);
   useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
+  fetchSettings();
+
+  getBusinessDetails(tenantId || undefined)
+    .then((d) => setBusinessDetails(d.data))
+    .catch(() => {});
+
+  getSuperAdminPricing()
+    .then((d) => setPricing(d.data || []))
+    .catch(() => {});
+}, [fetchSettings, tenantId]);
 
   // ── Save ───────────────────────────────────────────────────────────────────
 
@@ -205,7 +260,7 @@ export default function EmailSettingsPage() {
   return (
    <div className="flex">
          {/* Sidebar */}
-         <Sidebar
+         {/* <Sidebar
            open={sidebarOpen}
            onToggle={() => setSidebarOpen(!sidebarOpen)}
            currentTab={currentTab}
@@ -213,7 +268,12 @@ export default function EmailSettingsPage() {
            onLogout={() => console.log("logout")}
            domain="yourstore.com"
            companyName="My Store"
-         />
+         /> */}
+           <Sidebar
+                         open={sidebarOpen}
+                         onToggle={() => setSidebarOpen(!sidebarOpen)}
+                         onLogout={() => console.log("logout")}
+                       />
    
          {/* Main Content */}
          <div
@@ -240,6 +300,7 @@ export default function EmailSettingsPage() {
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
+            <ProfilePlanButton pricing={pricing} businessDetails={businessDetails} />
         </div>
       </div>
 

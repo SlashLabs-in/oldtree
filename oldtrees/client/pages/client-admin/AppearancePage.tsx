@@ -234,6 +234,7 @@ export default function AppearancePage() {
   });
   const [savingSocial, setSavingSocial] = useState(false);
 
+const [activeBillingPlan, setActiveBillingPlan] = useState("");
   // Upgrade Plan Modal
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
   const [upgradePromptMessage, setUpgradePromptMessage] = useState("");
@@ -244,7 +245,7 @@ export default function AppearancePage() {
 
 
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [currentTab, setCurrentTab] = useState<TabType>("appearance");
+    // const [currentTab, setCurrentTab] = useState<TabType>("appearance");
   
   // ── Load ───────────────────────────────────────────────────────────────────
 
@@ -261,8 +262,13 @@ export default function AppearancePage() {
           getCurrentPlanDetails(tenantId || undefined),
         ]);
 
+      // if (bizRes.status === "fulfilled" && bizRes.value.data) {
+      //   const d = bizRes.value.data;
+      //   setBusinessForm({
       if (bizRes.status === "fulfilled" && bizRes.value.data) {
         const d = bizRes.value.data;
+        // Store billing_plan directly for upgrade modal use
+        setActiveBillingPlan(d.billing_plan || d.billingPlan || "");
         setBusinessForm({
           companyName: d.company_name || "",
           contactEmail: d.contact_email || "",
@@ -304,23 +310,47 @@ export default function AppearancePage() {
 
   // ── Upgrade Plan ───────────────────────────────────────────────────────────
 
-  const loadBillingPlans = async () => {
+  // const loadBillingPlans = async () => {
+  //   try {
+  //     const res = await getSuperAdminPricing();
+  //     const plans = res.data || [];
+  //     setBillingPlans(plans);
+  //     if (plans.length && !selectedBillingPlan) setSelectedBillingPlan(plans[0].name);
+  //   } catch (err) {
+  //     console.error("Failed to load billing plans", err);
+  //   }
+  // };
+  const loadBillingPlans = async (activePlanName: string = "") => {
     try {
       const res = await getSuperAdminPricing();
       const plans = res.data || [];
       setBillingPlans(plans);
-      if (plans.length && !selectedBillingPlan) setSelectedBillingPlan(plans[0].name);
+      const matched = plans.find(
+        (p: any) => p.name?.toLowerCase() === activePlanName?.toLowerCase()
+      );
+      setSelectedBillingPlan(matched?.name || activePlanName || plans[0]?.name || "");
     } catch (err) {
       console.error("Failed to load billing plans", err);
     }
   };
 
-  const openUpgradePlanModal = (message: string) => {
+  // const openUpgradePlanModal = (message: string) => {
+  //   setUpgradePromptMessage(message);
+  //   setShowUpgradePlanModal(true);
+  //   if (!billingPlans.length) loadBillingPlans();
+  // };
+// const openUpgradePlanModal = (message: string) => {
+//     setUpgradePromptMessage(message);
+//     setShowUpgradePlanModal(true);
+//     // Use billing_plan from businessForm directly — always available
+//     const activePlan = currentPlan?.name || businessForm.companyName || "";
+//     loadBillingPlans(activePlan);
+//   };
+const openUpgradePlanModal = (message: string) => {
     setUpgradePromptMessage(message);
     setShowUpgradePlanModal(true);
-    if (!billingPlans.length) loadBillingPlans();
+    loadBillingPlans(currentPlan?.name || activeBillingPlan);
   };
-
   const updatePlanForTenant = async () => {
     if (!tenantId || !selectedBillingPlan) return;
     setUpgradingBillingPlan(true);
@@ -493,7 +523,7 @@ export default function AppearancePage() {
         onConfirm={updatePlanForTenant}
         submitting={upgradingBillingPlan}
       />
- <Sidebar
+ {/* <Sidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         currentTab={currentTab}
@@ -501,7 +531,19 @@ export default function AppearancePage() {
         onLogout={() => console.log("logout")}
         domain="yourstore.com"
         companyName="My Store"
-      />
+      /> */}
+      {/* <Sidebar
+  open={sidebarOpen}
+  onToggle={() => setSidebarOpen(!sidebarOpen)}
+  onLogout={() => console.log("logout")}
+  domain="yourstore.com"
+  companyName="My Store"
+/> */}
+<Sidebar
+  open={sidebarOpen}
+  onToggle={() => setSidebarOpen(!sidebarOpen)}
+  onLogout={() => console.log("logout")}
+/>
 
       {/* Main Content */}
       <div
