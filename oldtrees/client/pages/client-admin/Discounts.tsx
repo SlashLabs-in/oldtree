@@ -367,7 +367,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
   const fetchDiscounts = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getClientDiscounts(tenantId || undefined);
+      const data = await getClientDiscounts(tenantId || undefined,searchQuery);
       setDiscounts(data.data || []);
     } catch {
       toast.error("Failed to load discounts");
@@ -375,7 +375,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
     } finally {
       setLoading(false);
     }
-  }, [tenantId]);
+  }, [tenantId,searchQuery]);
 
   // useEffect(() => {
   //   fetchDiscounts();
@@ -660,10 +660,10 @@ const columns: Column<Discount>[] = [
             <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
             <p className="text-slate-500">Loading discounts...</p>
           </div>
-        ) : filtered.length > 0 ? (
+        ) : discounts.length > 0 ? (
           <div className="overflow-x-auto">
           <AppTable
-  data={filtered}
+  data={discounts}
   columns={columns}
   loading={loading}
 

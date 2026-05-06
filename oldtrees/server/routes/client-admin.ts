@@ -9,6 +9,42 @@ import {
 } from "../auth";
 
 // Products
+// export const getProducts: RequestHandler = async (req, res) => {
+//   try {
+//     const tenantId = (req as any).tenantId;
+
+//     if (!tenantId) {
+//       res.status(401).json({ error: "Unauthorized: No tenant ID found in token" });
+//       return;
+//     }
+
+//     const { page = "1", limit = "10" } = req.query as any;
+//     const currentPage = Math.max(1, parseInt(page as string, 10) || 1);
+//     const pageLimit = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 10));
+//     const offset = (currentPage - 1) * pageLimit;
+
+//     const items = await query(
+//       `SELECT * FROM products WHERE tenant_id = ? ORDER BY created_at DESC LIMIT ${pageLimit} OFFSET ${offset}`,
+//       [tenantId],
+//     );
+//     const countRows = await query(
+//       "SELECT COUNT(*) as total FROM products WHERE tenant_id = ?",
+//       [tenantId]
+//     );
+//     const total = Array.isArray(countRows) && countRows.length > 0 ? (countRows[0] as any).total : 0;
+
+//     res.json({
+//       success: true,
+//       data: Array.isArray(items) ? items : [],
+//       pagination: { total, page: currentPage, limit: pageLimit, pages: Math.ceil(total / pageLimit) }
+//     });
+//   } catch (error) {
+//     console.error("Get products error:", error);
+//     res.status(500).json({ error: "Failed to fetch products" });
+//   }
+// };
+
+
 export const getProducts: RequestHandler = async (req, res) => {
   try {
     const tenantId = (req as any).tenantId;
@@ -18,25 +54,53 @@ export const getProducts: RequestHandler = async (req, res) => {
       return;
     }
 
-    const { page = "1", limit = "10" } = req.query as any;
-    const currentPage = Math.max(1, parseInt(page as string, 10) || 1);
-    const pageLimit = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 10));
+    const { page = "1", limit = "10", search = "" } = req.query as any;
+
+    const currentPage = Math.max(1, parseInt(page, 10) || 1);
+    const pageLimit = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
     const offset = (currentPage - 1) * pageLimit;
 
+    let whereClause = "WHERE tenant_id = ?";
+    let params: any[] = [tenantId];
+
+    if (search && search.trim()) {
+      whereClause += ` AND (
+        name LIKE ? OR 
+        description LIKE ? OR 
+        sku LIKE ?
+      )`;
+
+      const searchValue = `%${search.trim()}%`;
+      params.push(searchValue, searchValue, searchValue);
+    }
+
     const items = await query(
-      `SELECT * FROM products WHERE tenant_id = ? ORDER BY created_at DESC LIMIT ${pageLimit} OFFSET ${offset}`,
-      [tenantId],
+      `SELECT * FROM products 
+       ${whereClause}
+       ORDER BY created_at DESC 
+       LIMIT ${pageLimit} OFFSET ${offset}`,
+      params
     );
+
     const countRows = await query(
-      "SELECT COUNT(*) as total FROM products WHERE tenant_id = ?",
-      [tenantId]
+      `SELECT COUNT(*) as total FROM products ${whereClause}`,
+      params
     );
-    const total = Array.isArray(countRows) && countRows.length > 0 ? (countRows[0] as any).total : 0;
+
+    const total =
+      Array.isArray(countRows) && countRows.length > 0
+        ? (countRows[0] as any).total
+        : 0;
 
     res.json({
       success: true,
       data: Array.isArray(items) ? items : [],
-      pagination: { total, page: currentPage, limit: pageLimit, pages: Math.ceil(total / pageLimit) }
+      pagination: {
+        total,
+        page: currentPage,
+        limit: pageLimit,
+        pages: Math.ceil(total / pageLimit),
+      },
     });
   } catch (error) {
     console.error("Get products error:", error);

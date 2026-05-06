@@ -479,11 +479,11 @@ export default function ProductPage() {
   // ── Fetch ────────────────────────────────────────────────────────────────
 
   const fetchProducts = useCallback(
-    async (p = 1) => {
+    async (p = 1, search = "") => {
       setLoading(true);
       try {
         const [prodsData, catsData] = await Promise.all([
-          getClientProducts({ page: p, limit: 10, tenantId: tenantId || undefined }),
+          getClientProducts({ page: p, limit: 10000, search: search, tenantId: tenantId || undefined }),
           getClientCategories(tenantId || undefined),
         ]);
         setProducts(prodsData.data || []);
@@ -500,14 +500,14 @@ export default function ProductPage() {
   );
 
   useEffect(() => {
-    fetchProducts();
+     fetchProducts(1, searchQuery);
     getBusinessDetails(tenantId || undefined)
       .then((d) => setBusinessDetails(d.data))
       .catch(() => {});
     getSuperAdminPricing()
       .then((d) => setPricing(d.data || []))
       .catch(() => {});
-  }, [fetchProducts, tenantId]);
+  }, [searchQuery,fetchProducts, tenantId]);
 
   // ── Image upload ─────────────────────────────────────────────────────────
 
@@ -859,7 +859,7 @@ export default function ProductPage() {
           totalPages={totalPages}
           onPageChange={(p) => {
             setPage(p);
-            fetchProducts(p);
+            fetchProducts(p, searchQuery);
           }}
           emptyMessage="No products"
         />

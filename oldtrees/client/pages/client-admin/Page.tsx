@@ -381,7 +381,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
         const data = await getPagesAdmin({
           page,
           limit: LIMIT,
-          tenantId: tenantId || undefined,
+          tenantId: tenantId || undefined,search: searchQuery,   status: statusFilter !== "all" ? statusFilter : undefined// Pass search query to API
         });
         setPages(data.data || []);
         setTotalPages(data.pagination?.pages || 1);
@@ -392,7 +392,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
         setLoading(false);
       }
     },
-    [tenantId, currentPage]
+   [tenantId, currentPage, searchQuery, statusFilter]
   );
 
   // useEffect(() => {
@@ -604,9 +604,9 @@ useEffect(() => {
             <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
             <p className="text-slate-500">Loading pages...</p>
           </div>
-        ) : filtered.length > 0 ? (
+        ) : pages.length > 0 ? (
           <div className="divide-y divide-slate-100">
-            {filtered.map((page) => (
+            {pages.map((page) => (
               <div
                 key={page.id}
                 className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors group"

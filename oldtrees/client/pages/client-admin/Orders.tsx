@@ -343,7 +343,7 @@ export default function OrdersPage() {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getClientOrders(tenantId || undefined);
+      const data = await getClientOrders(tenantId || undefined,searchQuery,statusFilter);
       setOrders(data.data || []);
     } catch {
       toast.error("Failed to load orders");
@@ -351,7 +351,7 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [tenantId]);
+  }, [tenantId,searchQuery, statusFilter]);
 
   // useEffect(() => {
   //   fetchOrders();
@@ -361,7 +361,7 @@ export default function OrdersPage() {
   // }, [fetchOrders, tenantId]);
   useEffect(() => {
     fetchOrders();
-    getBusinessDetails(tenantId || undefined)
+    getBusinessDetails(tenantId || undefined,)
       .then((d) => setBusinessDetails(d.data))
       .catch(() => {});
     getSuperAdminPricing()
@@ -753,10 +753,10 @@ const columns: Column<Order>[] = [
             <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
             <p className="text-slate-500">Loading orders...</p>
           </div>
-        ) : filtered.length > 0 ? (
+        ) : orders.length > 0 ? (
           <div className="overflow-x-auto">
           <AppTable
-  data={filtered}
+  data={orders}
   columns={columns}
   loading={loading}
   searchQuery={searchQuery}

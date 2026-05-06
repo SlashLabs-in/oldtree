@@ -389,6 +389,8 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
           page: p,
           limit: 10,
           tenantId: tenantId || undefined,
+           search: searchQuery || undefined,
+
         });
         setPosts(data.data || []);
         setTotalPages(data.pagination?.pages || 1);
@@ -399,7 +401,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
         setLoading(false);
       }
     },
-    [tenantId, page]
+    [tenantId, page,searchQuery]
   );
 
   // useEffect(() => {
@@ -614,8 +616,8 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
             <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
             <p className="text-slate-500">Loading blog posts...</p>
           </div>
-        ) : filtered.length > 0 ? (
-          filtered.map((post) => (
+        ) : posts.length > 0 ? (
+          posts.map((post) => (
             <div
               key={post.id}
               className="bg-white rounded-xl border border-slate-200 p-5 flex items-center justify-between hover:shadow-md transition-shadow group"

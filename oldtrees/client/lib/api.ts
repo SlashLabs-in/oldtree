@@ -1,3 +1,5 @@
+import { Search } from "lucide-react";
+
 const API_BASE = "/api";
 
 // Helper function to construct proper asset URLs
@@ -262,19 +264,38 @@ export async function getClientAdminDashboard(tenantId?: string) {
   return response.json();
 }
 
-export async function getClientProducts(opts?: { page?: number; limit?: number; tenantId?: string }) {
+export async function getClientProducts(opts?: { page?: number; limit?: number; search?: string; tenantId?: string }) {
   const params: string[] = [];
   if (opts?.page) params.push(`page=${opts.page}`);
   if (opts?.limit) params.push(`limit=${opts.limit}`);
+if (opts?.search?.trim()) {
+  params.push(`search=${encodeURIComponent(opts.search.trim())}`);
+}
+
   const url = buildClientAdminUrl(`/products${params.length ? `?${params.join("&")}` : ""}`, opts?.tenantId);
   const response = await apiFetch(url, { headers: getAuthHeaders() });
   return response.json();
 }
 
-export async function getClientCategories(tenantId?: string) {
-  const response = await apiFetch(buildClientAdminUrl("/categories", tenantId), {
+export async function getClientCategories(
+  tenantId?: string,
+  search?: string
+) {
+  const params: string[] = [];
+
+  if (search?.trim()) {
+    params.push(`search=${encodeURIComponent(search.trim())}`);
+  }
+
+  const url = buildClientAdminUrl(
+    `/categories${params.length ? `?${params.join("&")}` : ""}`,
+    tenantId
+  );
+
+  const response = await apiFetch(url, {
     headers: getAuthHeaders(),
   });
+
   return response.json();
 }
 
@@ -339,10 +360,30 @@ export async function deleteClientProduct(productId: string, tenantId?: string) 
   return response.json();
 }
 
-export async function getClientOrders(tenantId?: string) {
-  const response = await apiFetch(buildClientAdminUrl("/orders", tenantId), {
+export async function getClientOrders(
+  tenantId?: string,
+  search?: string,
+  status?: string
+) {
+  const params: string[] = [];
+
+  if (search?.trim()) {
+    params.push(`search=${encodeURIComponent(search.trim())}`);
+  }
+
+  if (status && status !== "all") {
+    params.push(`status=${encodeURIComponent(status)}`);
+  }
+
+  const url = buildClientAdminUrl(
+    `/orders${params.length ? `?${params.join("&")}` : ""}`,
+    tenantId
+  );
+
+  const response = await apiFetch(url, {
     headers: getAuthHeaders(),
   });
+
   return response.json();
 }
 
@@ -362,15 +403,37 @@ export async function updateOrderStatus(orderId: string, status?: string, paymen
   return response.json();
 }
 
-export async function getClientCustomers(tenantId?: string) {
-  const response = await apiFetch(buildClientAdminUrl("/customers", tenantId), {
+export async function getClientCustomers(tenantId?: string, search?: string) {
+  const params: string[] = [];
+
+  if (search?.trim()) {
+    params.push(`search=${encodeURIComponent(search.trim())}`);
+  }
+
+  const url = buildClientAdminUrl(
+    `/customers${params.length ? `?${params.join("&")}` : ""}`,
+    tenantId
+  );
+
+  const response = await apiFetch(url, {
     headers: getAuthHeaders(),
   });
   return response.json();
 }
 
-export async function getClientDiscounts(tenantId?: string) {
-  const response = await apiFetch(buildClientAdminUrl("/discounts", tenantId), {
+export async function getClientDiscounts(tenantId?: string, search?: string) {
+  const params: string[] = [];
+
+  if (search?.trim()) {
+    params.push(`search=${encodeURIComponent(search.trim())}`);
+  }
+
+  const url = buildClientAdminUrl(
+    `/discounts${params.length ? `?${params.join("&")}` : ""}`,
+    tenantId
+  );
+
+  const response = await apiFetch(url, {
     headers: getAuthHeaders(),
   });
   return response.json();
@@ -860,10 +923,17 @@ export async function assignThemeToClient(clientId: string, themeId: string) {
 }
 
 // Pages Admin
-export async function getPagesAdmin(opts?: { page?: number; limit?: number; tenantId?: string }) {
+export async function getPagesAdmin(opts?: { page?: number; limit?: number; tenantId?: string ,search?: string , status?: "published" | "draft" }) {
   const params: string[] = [];
   if (opts?.page) params.push(`page=${opts.page}`);
   if (opts?.limit) params.push(`limit=${opts.limit}`);
+  if (opts?.search?.trim()) {
+    params.push(`search=${encodeURIComponent(opts.search.trim())}`);
+  }
+  if (opts?.status) {
+    params.push(`status=${encodeURIComponent(opts.status)}`);
+  }
+
   const url = buildClientAdminUrl(`/pages${params.length ? `?${params.join("&")}` : ""}`, opts?.tenantId);
   const response = await apiFetch(url, { headers: getAuthHeaders() });
   return response.json();
@@ -885,12 +955,30 @@ export async function deletePageAdmin(pageId: string, tenantId?: string) {
 }
 
 // Blog Admin
-export async function getBlogPostsAdmin(opts?: { page?: number; limit?: number; tenantId?: string }) {
+export async function getBlogPostsAdmin(opts?: {
+  page?: number;
+  limit?: number;
+  tenantId?: string;
+  search?: string;
+}) {
   const params: string[] = [];
+
   if (opts?.page) params.push(`page=${opts.page}`);
   if (opts?.limit) params.push(`limit=${opts.limit}`);
-  const url = buildClientAdminUrl(`/blog-posts${params.length ? `?${params.join("&")}` : ""}`, opts?.tenantId);
-  const response = await apiFetch(url, { headers: getAuthHeaders() });
+
+  if (opts?.search?.trim()) {
+    params.push(`search=${encodeURIComponent(opts.search.trim())}`);
+  }
+
+  const url = buildClientAdminUrl(
+    `/blog-posts${params.length ? `?${params.join("&")}` : ""}`,
+    opts?.tenantId
+  );
+
+  const response = await apiFetch(url, {
+    headers: getAuthHeaders(),
+  });
+
   return response.json();
 }
 

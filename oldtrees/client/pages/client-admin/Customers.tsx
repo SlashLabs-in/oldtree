@@ -342,7 +342,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getClientCustomers(tenantId || undefined);
+      const data = await getClientCustomers(tenantId || undefined,searchQuery);
       setCustomers(data.data || []);
     } catch (err) {
       toast.error("Failed to load customers");
@@ -350,7 +350,7 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
     } finally {
       setLoading(false);
     }
-  }, [tenantId]);
+  }, [tenantId,searchQuery]);
 
   // useEffect(() => {
   //   fetchCustomers();
@@ -585,10 +585,10 @@ const [businessDetails, setBusinessDetails] = useState<any>(null);
             <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
             <p className="text-slate-500">Loading customers...</p>
           </div>
-        ) : filtered.length > 0 ? (
+        ) : customers.length > 0 ? (
           <div className="overflow-x-auto">
          <AppTable
-  data={filtered}
+  data={customers}
   columns={columns}
   loading={loading}
   searchQuery={searchQuery}

@@ -260,7 +260,7 @@ const [sidebarOpen, setSidebarOpen] = useState(true);
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getClientCategories(tenantId || undefined);
+      const data = await getClientCategories(tenantId || undefined,searchQuery);
       setCategories(data.data || []);
     } catch {
       toast.error("Failed to load categories");
@@ -268,7 +268,7 @@ const [sidebarOpen, setSidebarOpen] = useState(true);
     } finally {
       setLoading(false);
     }
-  }, [tenantId]);
+  }, [tenantId,searchQuery]);
 
   // useEffect(() => {
   //   fetchCategories();
@@ -283,7 +283,7 @@ useEffect(() => {
   getSuperAdminPricing()
     .then((d) => setPricing(d.data || []))
     .catch(() => {});
-}, [fetchCategories, tenantId]);
+}, [fetchCategories, tenantId,searchQuery]);
   // ── Handlers ───────────────────────────────────────────────────────────────
 
   const openAddModal = () => {
@@ -356,15 +356,7 @@ useEffect(() => {
 
   // ── Filter ─────────────────────────────────────────────────────────────────
 
-  const filtered = categories.filter((c) => {
-    const q = searchQuery.toLowerCase();
-    if (!q) return true;
-    return (
-      c.name.toLowerCase().includes(q) ||
-      c.slug.toLowerCase().includes(q) ||
-      (c.description || "").toLowerCase().includes(q)
-    );
-  });
+
 
 
 
@@ -465,7 +457,7 @@ useEffect(() => {
     </div>
   </div>
 
-  {/* 🔘 Buttons - 20% */}
+  {/*  Buttons - 20% */}
   <div className="flex gap-3 w-full sm:basis-[20%] sm:justify-end flex-wrap">
   
 
@@ -486,10 +478,10 @@ useEffect(() => {
             <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
             <p className="text-slate-500">Loading categories...</p>
           </div>
-        ) : filtered.length > 0 ? (
+        ) : categories.length > 0 ? (
           <div className="overflow-x-auto">
           <AppTable
-  data={filtered}
+  data={categories}
   columns={columns}
   loading={loading}
 
